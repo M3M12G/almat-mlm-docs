@@ -1,41 +1,46 @@
-# almat_mlm_app
+# almat-mlm-docs
 
-Пилот Almat MLM — приложение + каноническая техдокументация.
+Каноническая документация пилота Almat MLM. **Кода здесь нет.**
+
+Подключается в `almat-mlm-api` и `almat-mlm-web` как git submodule по пути `docs/`.
 
 ## Start here
 
-1. [`docs/TECH_SPEC.md`](docs/TECH_SPEC.md) — backend / frontend / storage / integrations
-2. [`docs/07_open_questions.md`](docs/07_open_questions.md) — закрыть до bonus engine
-3. [`docs/08_roadmap.md`](docs/08_roadmap.md) — этапы
-4. [`docs/09_mvp_deployment.md`](docs/09_mvp_deployment.md) — бесплатный MVP-деплой (до домена/эквайринга)
-5. [`docs/adr/0004-…`](docs/adr/0004-oss-long-lived-dependencies.md) — OSS-политика + **TickerQ**
+1. [`TECH_SPEC.md`](TECH_SPEC.md) — backend / frontend / storage / integrations
+2. [`07_open_questions.md`](07_open_questions.md) — закрыть до bonus engine
+3. [`08_roadmap.md`](08_roadmap.md) — этапы
+4. [`09_mvp_deployment.md`](09_mvp_deployment.md) — бесплатный MVP-деплой
+5. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + TickerQ
 
 ## Layout
 
 ```
-almat_mlm_app/
-├── AGENTS.md
-├── docs/
-│   ├── TECH_SPEC.md           # сводная техспека
-│   ├── 00_…09_*.md            # домен + MVP deploy
-│   ├── adr/                   # принятые архитектурные решения
-│   └── agents/                # Matt Pocock skills config
-├── db/                        # schema + recursive CTE
-├── api-contracts/
-├── apps/{api,web}/            # независимые папки (не monorepo)
-├── .scratch/                  # issues + archive/root-draft
-├── graphify-out/
-└── .codegraph/
+almat-mlm-docs/          ← корень репо (= docs/ в api/web после submodule)
+├── TECH_SPEC.md
+├── 00_…09_*.md
+├── adr/
+├── agents/              # Matt Pocock skills config
+├── db/                  # schema.sql, queries_recursive.sql
+└── api-contracts/
 ```
 
-`apps/api` и `apps/web` без Nx/Turborepo — позже разные репозитории.
+В code-репо пути выглядят так:
 
-## Graphs
+| В этом репо | В api / web |
+|---|---|
+| `TECH_SPEC.md` | `docs/TECH_SPEC.md` |
+| `adr/` | `docs/adr/` |
+| `db/schema.sql` | `docs/db/schema.sql` |
+| `api-contracts/` | `docs/api-contracts/` |
+
+## Обновление submodule в api/web
 
 ```bash
-# docs/architecture graph
-# (re-run after doc changes via agent /graphify --update)
-
-# code index (после появления исходников)
-codegraph sync .
+cd docs
+git pull origin main
+cd ..
+git add docs
+git commit -m "chore: update docs submodule ref"
 ```
+
+Не копировать канон в `.scratch` — только ссылки на файлы выше.

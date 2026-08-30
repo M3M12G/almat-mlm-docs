@@ -1,6 +1,17 @@
 # Issue tracker: Local Markdown
 
-Issues and specs for this repo live as markdown files in `.scratch/`.
+Issues and specs for **code repos** (`almat-mlm-api`, `almat-mlm-web`) live as
+markdown files in that repo's `.scratch/`. Do **not** put tickets in
+`almat-mlm-docs`.
+
+## Specs link — do not copy canon
+
+`spec.md` must **reference** files under `docs/` (submodule), not paste their
+content. If the contract changes in docs, the ticket must not silently diverge.
+
+```markdown
+См. `docs/02_network_model.md` и `docs/api-contracts/endpoints.md` (`GET /network/tree`).
+```
 
 ## Conventions
 
