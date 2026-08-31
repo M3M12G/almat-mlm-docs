@@ -14,6 +14,10 @@
 - [ ] JWT в httpOnly cookie, не localStorage.
 - [ ] Валидация всех raw SQL с recursive CTE — параметризация обязательна, даже
       в сыром SQL (не только там, где EF Core параметризует автоматически).
+- [ ] Quartz dashboard — только под ASP.NET auth (Basic Auth / admin policy);
+      не публиковать UI без пароля (ADR-0004).
+- [ ] FreedomPay: `SecretKey` / Partner JWS secret только в env; Result URL
+      проверяет `pg_sig` на каждый запрос.
 
 ## Инфраструктурный уровень
 

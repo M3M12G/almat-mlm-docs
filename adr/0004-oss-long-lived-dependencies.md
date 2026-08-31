@@ -15,10 +15,11 @@ commercial / dual-license модель. Нужна явная политика: 
    широкое adoption. Перед NuGet/npm — проверить лицензию и «кто владеет».
 3. **Маппинг DTO:** **Mapster** (MIT, OSS) — не AutoMapper. Простые случаи
    можно и руками; сложные конфиги — через Mapster.
-4. **Фоновые задачи:** *(исходный план — ниже; **актуально: TickerQ**, см.
-   раздел «Дополнение».)* `BackgroundService` + простой schedule (месячный
-   Leadership Pool). Если cron-сложность вырастет — **Quartz.NET** (Apache-2.0).
-   Hangfire на старте не ставим (Pro/лицензионная путаница не нужна).
+4. **Фоновые задачи:** **Quartz.NET** (Apache-2.0) + JobStore на Postgres +
+   OSS-дашборд (CrystalQuartz или эквивалент) под **стандартной ASP.NET
+   авторизацией** (Basic Auth / policy). Hangfire не ставим (Pro/лицензии).
+   *(История: кратко смотрели TickerQ ради UI — откатили в пользу зрелого
+   Quartz + auth на дашборде; см. дополнение.)*
 5. **Валидация:** data annotations / ручные checks. FluentValidation (Apache-2.0)
    — опционально, не сразу.
 6. **Frontend:** React + Next.js (`output: 'standalone'`) + TanStack Query +
@@ -33,62 +34,50 @@ commercial / dual-license модель. Нужна явная политика: 
 |---|---|
 | **MediatR** | Commercial shift; для пилота хватает controller → service |
 | **AutoMapper** | Commercial; вместо него **Mapster** (MIT) |
-| **Hangfire** | Pro/лицензионная путаница; **отказ в силе** (см. дополнение ниже). Не заменяется «на Hangfire Core» — обходим через **TickerQ** |
-| **Quartz.NET** (как следующий шаг после `BackgroundService`) | План из п.4 пересмотрен: нужен встроенный визуальный дашборд; выбран **TickerQ** (см. дополнение) |
+| **Hangfire** | Pro/лицензионная путаница; **отказ в силе**. Не обходим «Hangfire Core» |
+| **TickerQ** | Моложе экосистема; дашборд закрываем Quartz + CrystalQuartz (или аналог) + ASP.NET auth |
 | **MassTransit / Kafka / Rabbit** | YAGNI |
 | **Clean Architecture / VSA + MediatR шаблон** | Оверинжиниринг для соло-пилота |
 
-## Дополнение (после проверки на MVP-этапе)
+## Дополнение — Jobs: Quartz.NET (актуально)
 
-**Статус:** пересмотр п.4 «Фоновые задачи». Исходный план
-`BackgroundService → Quartz.NET при росте cron-сложности` **заменяется** на **TickerQ**.
+**Статус:** финальный выбор п.4 — **Quartz.NET**, не TickerQ / Hangfire /
+«голый» `BackgroundService`.
 
-### Почему пересматриваем
+### Почему Quartz
 
-Визуальный дашборд мониторинга джоб оказался **приоритетным** требованием:
-демо инвестору + повседневная отладка соло-разработчиком. Цепочка
-BackgroundService / Quartz этого не даёт «из коробки» без самописного UI.
-
-### Новый выбор: TickerQ
-
-| Критерий ADR-0004 | TickerQ |
+| Критерий ADR-0004 | Quartz.NET |
 |---|---|
-| Лицензия | dual-licensed **MIT / Apache-2.0** |
-| Владелец | Arcenox LLC (проверено на момент решения) |
-| Adoption | ~880K загрузок на NuGet |
-| Активность | активные релизы |
-| Postgres / EF | EF Core-native, нативная поддержка Postgres |
-| Дашборд | встроенный SignalR-дашборд, **без платных надстроек** |
+| Лицензия | **Apache-2.0** |
+| Зрелость | годы в проде, огромная экосистема |
+| Persistence | ADO.NET JobStore → **Postgres** (та же БД пилота) |
+| Cron / календарь | из коробки (месячный Leadership Pool и т.д.) |
+| Дашборд | OSS UI (**CrystalQuartz** или эквивалент) |
+| Auth на UI | **стандартная ASP.NET** авторизация (Basic Auth на всех env; либо admin policy) — без кастомного API дашборда |
 
-Пройдены те же критерии проверки, что декларирует эта ADR (лицензия, владелец,
-adoption, активность).
-
-### Принятый риск (явно)
-
-Библиотека **моложе** Hangfire/Quartz (~2 года истории, меньшая экосистема).
-Это осознанный trade-off ради дашборда и OSS-лицензии.
-
-**Переоценка через 6–12 месяцев эксплуатации.** При проблемах со стабильностью —
-откат на `BackgroundService` + собственный минимальный dashboard поверх своей
-таблицы `job_runs`, **без** внешней job-библиотеки.
-
-### Hangfire
-
-Причина отказа от Hangfire (**Pro / лицензионная путаница**) **остаётся в силе**
-и **не** пересматривается этим решением. TickerQ — не «Hangfire-lite», а
-отдельный OSS-выбор под дашборд.
+Ранее рассматривали TickerQ из‑за «дашборда из коробки». Требование закрывается
+связкой Quartz + OSS dashboard + middleware auth; зрелость/adoption важнее
+молодой библиотеки.
 
 ### Операционное требование
 
-`AddDashboardBasicAuth()` (или эквивалент) **обязательна** на всех окружениях;
-дашборд (`/tickerq-dashboard` или заданный `basePath`) не оставлять публично
-открытым. См. `AGENTS.md`, `docs/01_stack.md`, `docs/TECH_SPEC.md`.
+Дашборд Quartz **не** публиковать без auth. На всех окружениях (local demo /
+staging / prod): Basic Auth или существующая admin-аутентификация приложения.
+URL дашборда не светить в публичных README.
+
+### Hangfire
+
+Отказ (**Pro / лицензионная путаница**) **остаётся в силе**.
+
+### Rollback
+
+При критических проблемах с Quartz/UI — сузить до `BackgroundService` + таблица
+`job_runs` + минимальный self-hosted status page. **Не** откатываться на Hangfire.
 
 ## Последствия
 
 - ✅ Предсказуемые лицензии, меньше сюрпризов при апгрейде
 - ✅ Меньше магии commercial-стека — проще ревью денежных путей
-- ✅ Jobs: TickerQ + Postgres + встроенный дашборд (с auth)
+- ✅ Jobs: Quartz.NET + Postgres + dashboard с ASP.NET auth
 - ⚠️ Новый NuGet/npm вне allow-list — **спросить человека** (см. `AGENTS.md`)
-- ⚠️ TickerQ — younger ecosystem; rollback-план зафиксирован выше
 - 📄 Стек: `docs/01_stack.md`, `docs/TECH_SPEC.md`, `docs/09_mvp_deployment.md`

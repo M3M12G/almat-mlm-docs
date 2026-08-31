@@ -19,7 +19,7 @@ BonusRuleEngine
 RankEngine (после каждой покупки/изменения объёмов)
         └─► проверяет условия рангов → RankAchievement → RankBonusTransaction
 
-LeadershipPoolJob (TickerQ, ежемесячно)
+LeadershipPoolJob (Quartz, ежемесячно)
         └─► мировой ТО → баллы рангов → BonusTransaction[]
 ```
 
@@ -107,8 +107,8 @@ Leadership Pool.
 1 балл = 27 397 ₸. Золотой директор (1 балл) получает 27 397 ₸, Амбассадор
 (15 баллов) — 410 959 ₸.
 
-Реализация — **TickerQ cron раз в месяц** (EF Core / Postgres, дашборд с
-Basic Auth — ADR-0004), не расчёт на лету.
+Реализация — **Quartz cron раз в месяц** (Postgres JobStore, дашборд с
+ASP.NET Basic Auth / admin policy — ADR-0004), не расчёт на лету.
 
 ---
 

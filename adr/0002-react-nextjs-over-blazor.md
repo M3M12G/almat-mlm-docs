@@ -9,9 +9,10 @@ fullstack-.NET UI. Приоритеты пилота сместились: си�
 ## Решение
 
 Фронтенд пилота — **Next.js (App Router) + React + TypeScript strict**, отдельно
-от API (`apps/web`). UI: shadcn/ui + Tailwind; серверное состояние: TanStack Query;
-дерево: `@xyflow/react` (v12+, MIT; бывш. reactflow). Без Zustand/Redux и без
-второй UI-библиотеки на старте. Next: `output: 'standalone'` для self-host.
+от API (приложение **mlm-web**, репо `almat-mlm-web`). UI: shadcn/ui + Tailwind;
+серверное состояние: TanStack Query; дерево: `@xyflow/react` (v12+, MIT; бывш.
+reactflow). Без Zustand/Redux и без второй UI-библиотеки на старте. Next:
+`output: 'standalone'` для self-host.
 
 **Актуальный выбор фронтенда — только Next.js/React.** Blazor Server / Blazor
 Wasm **не** являются целевым стеком. Упоминания Blazor в истории означают
@@ -27,7 +28,8 @@ Wasm **не** являются целевым стеком. Упоминания
 
 ## Последствия
 
-- ✅ Разделение `apps/api` (.NET) и `apps/web` (Next) — разные репозитории по плану
+- ✅ Разделение **mlm-api** (.NET, репо `almat-mlm-api`) и **mlm-web** (Next,
+  репо `almat-mlm-web`)
 - ✅ TypeScript strict обязателен для ИИ-генерации
 - ⚠️ Два рантайма в деплое (Node + .NET), два CI
 - ⚠️ Агенты не должны предлагать Blazor-компоненты или Razor Pages как UI

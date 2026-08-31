@@ -2,9 +2,10 @@
 
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
-**In `almat-mlm-api` / `almat-mlm-web`:** this tree is the git submodule at `docs/`
-(source repo `almat-mlm-docs`). Paths below are from the **code repo root**
-(`docs/adr/`, not a nested `docs/docs/`).
+**In repos `almat-mlm-api` (app mlm-api) / `almat-mlm-web` (app mlm-web):**
+this tree is the git submodule at `docs/` (source repo `almat-mlm-docs`).
+Paths below are from the **code repo root** (`docs/adr/`, not a nested
+`docs/docs/`).
 
 ## Before exploring, read these
 
@@ -24,7 +25,7 @@ Single-context repo (most repos):
 ├── docs/adr/          ← submodule almat-mlm-docs → adr/
 │   ├── 0001-….md
 │   └── …
-└── src/   # or AlmatMlm.Api / app sources
+└── src/   # or Mlm.Api (assembly mlm-api) / Next app (mlm-web)
 ```
 
 Multi-context repo (presence of `CONTEXT-MAP.md` at the root):

@@ -1,10 +1,10 @@
-# MVP Deployment — бесплатные ресурсы (без домена и эквайринга)
+# MVP Deployment — бесплатные ресурсы (без домена; mock payments)
 
-**Статус:** план до появления своего домена и платёжного провайдера.  
+**Статус:** план до появления своего домена и боевого FreedomPay.  
 Цель: публичный demo URL для инвестора + staging для bonus engine, **$0/мес**.
 
-Платежка и кастомный домен — **out of scope этого документа** (подключить позже
-поверх той же схемы).
+Боевая платёжка (FreedomPay Result URL) и кастомный домен — **подключить позже**
+поверх той же схемы; детали интеграции — `04_payments.md`.
 
 ---
 
@@ -13,16 +13,16 @@
 ```
                     *.vercel.app (или Pages)
 ┌─────────────┐         HTTPS          ┌──────────────────┐
-│  apps/web   │───────────────────────►│ Cloudflare Tunnel │  (опц.)
+│   mlm-web   │───────────────────────►│ Cloudflare Tunnel │  (опц.)
 │  Next.js    │                        │  или публичный    │
 │  (Vercel)   │◄───── API_URL ────────│  URL API          │
 └─────────────┘                        └────────┬─────────┘
                                                 │
                                                 ▼
                                        ┌──────────────────┐
-                                       │    apps/api      │
+                                       │     mlm-api      │
                                        │  .NET 10 +       │
-                                       │  TickerQ         │
+                                       │  Quartz.NET      │
                                        │  (Render / Fly)  │
                                        └────────┬─────────┘
                                                 │
@@ -33,7 +33,7 @@
                                        └──────────────────┘
 ```
 
-Один compose-файл остаётся для **локальной** разработки (`api` + `postgres`).
+Один compose-файл остаётся для **локальной** разработки (`mlm-api` + `postgres`).
 В облаке сервисы разделены по free-tier провайдерам.
 
 ---
@@ -71,30 +71,32 @@ Oracle Always Free / чужой VPS — ок как **план B**, но выш�
 | `staging` | Vercel preview / `*-staging` | Render/Fly staging | Neon branch `staging` | bonus engine тесты |
 | `demo` (MVP) | Vercel production project | Render/Fly «demo» | Neon branch `demo` | показ инвестору |
 
-**Prod с реальной платёжкой** — отдельный этап после домена + эквайринга
-(не смешивать с demo DB).
+**Prod с реальным FreedomPay** — отдельный этап после домена + стабильного
+HTTPS API URL (Result URL должен быть публичным).
 
 ---
 
 ## 4. Что деплоить как
 
-### 4.1 `apps/web` → Vercel
-- Root Directory: `apps/web` (когда появится код).
+### 4.1 `mlm-web` → Vercel
+- Root Directory: корень репо `almat-mlm-web` (когда появится код).
 - Env: `NEXT_PUBLIC_API_URL` = публичный URL API.
 - Cookies/CORS: API должен отдавать CORS только на origin Vercel
   (explicit origins, не `*`).
 
-### 4.2 `apps/api` → Render Web Service (или Fly)
-- Dockerfile в `apps/api` (multi-stage .NET 10).
-- Env: `ConnectionStrings__Default`, JWT keys, TickerQ dashboard credentials.
+### 4.2 `mlm-api` → Render Web Service (или Fly)
+- Dockerfile в репо `almat-mlm-api` (multi-stage .NET 10).
+- Env: `ConnectionStrings__Default`, JWT keys, Quartz dashboard credentials,
+  позже — `FreedomPay__*`.
 - Health: `GET /health` — для cold-start ping.
-- **TickerQ dashboard:** Basic Auth обязателен; не публиковать без пароля
-  (см. ADR-0004, `AGENTS.md`).
+- **Quartz dashboard:** ASP.NET Basic Auth (или admin policy) обязателен;
+  не публиковать без пароля (см. ADR-0004, `AGENTS.md`).
 
 ### 4.3 Postgres → Neon
 - Две ветки: `staging`, `demo`.
 - Миграции EF — из CI или one-shot job на deploy staging
   (не auto-migrate demo без подтверждения).
+- Таблицы Quartz JobStore — в той же БД (миграции/скрипт DDL Quartz).
 
 ---
 
@@ -105,32 +107,33 @@ Oracle Always Free / чужой VPS — ок как **план B**, но выш�
 | HTTPS URL фронта | `*.vercel.app` |
 | HTTPS URL API | `*.onrender.com` / `*.fly.dev` |
 | Cookie auth cross-site | SameSite=None; Secure; явный CORS + CSRF-стратегия **или** на MVP временно Bearer в memory только для demo (хуже) — предпочтительно общий reverse-proxy позже |
-| Webhook эквайринга | **недоступен** без публичного стабильного URL + провайдера; mock payments на MVP |
+| FreedomPay Result URL | нужен публичный стабильный HTTPS; на чистом MVP — mock payments |
 | Красивый бренд-URL | отложить до покупки домена → Cloudflare |
 
-**Практика для MVP-демо без эквайринга:**
+**Практика для MVP-демо без FreedomPay:**
 - Режим `Payments:Provider=Mock` — заказ сразу `paid` (только staging/demo).
-- Реальный webhook — после выбора Epay/Kaspi и домена/стабильного API URL.
+- Реальный Result URL — после выдачи `MerchantId`/`SecretKey` и стабильного API URL.
 
 ---
 
-## 6. TickerQ на free hosting
+## 6. Quartz на free hosting
 
-- Jobs крутятся **внутри** процесса API → на Render Free при sleep **cron не тикает**.
+- Scheduler крутится **внутри** процесса API → на Render Free при sleep **cron не тикает**.
   Mitigation: (a) внешний free cron (cron-job.org) пингует `/health` каждые 10–14 мин;
   (b) или Fly.io с минимальным always-on, если лимит позволяет;
-  (c) Leadership Pool на MVP запускать **вручную** из дашборда TickerQ на демо.
-- Дашборд: Basic Auth; URL не светить в публичных README.
+  (c) Leadership Pool на MVP запускать **вручную** из дашборда Quartz на демо.
+- Дашборд: Basic Auth / admin policy; URL не светить в публичных README.
 
 ---
 
 ## 7. Секреты и безопасность MVP
 
 - [ ] JWT signing key / Data Protection keys — только env
-- [ ] TickerQ `AddDashboardBasicAuth()` на **всех** env
+- [ ] Quartz dashboard auth на **всех** env
 - [ ] Neon connection string с SSL
 - [ ] CORS allowlist = Vercel origins
 - [ ] Mock payments **запрещены** на любом env с реальными деньгами
+- [ ] `FreedomPay__SecretKey` / Partner JWS secret — только env (когда появятся)
 - [ ] Бэкап: Neon PITR/export перед демо с «важными» данными
 
 ---
@@ -151,7 +154,7 @@ EF migrate — отдельный job с approval.
 Триггеры апгрейда (не раньше боли):
 - Cold start мешает демо → always-on API ($7–/мес) или маленький VPS
 - Нужен свой домен + Cloudflare
-- Реальный эквайринг + webhook SLA
+- Боевой FreedomPay + Result URL SLA
 - Neon упирается в storage → dedicated Postgres
 
 План B all-in-one: **Oracle Always Free** / Hetzner CX + Docker Compose
@@ -162,11 +165,12 @@ EF migrate — отдельный job с approval.
 ## 10. Чеклист первого выката (без платежей)
 
 1. Neon: проекты `staging` + `demo`
-2. Render/Fly: API с `/health`, TickerQ + Basic Auth
+2. Render/Fly: API с `/health`, Quartz + dashboard auth
 3. Vercel: web → `NEXT_PUBLIC_API_URL`
 4. Mock payments включён **только** на staging/demo
 5. Прогрев API перед демо инвестору
-6. Открыть TickerQ dashboard по Basic Auth — показать Leadership Pool job
+6. Открыть Quartz dashboard по Basic Auth — показать Leadership Pool job
 7. Зафиксировать URL в `.scratch/` / README demo-секции (не коммитить пароли)
 
-Связанные: ADR-0004 (TickerQ), `01_stack.md`, `TECH_SPEC.md`, `06_security.md`.
+Связанные: ADR-0004 (Quartz), `01_stack.md`, `TECH_SPEC.md`, `04_payments.md`,
+`06_security.md`.

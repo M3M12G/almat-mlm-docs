@@ -18,7 +18,7 @@ AutoMapper и т.п.) не ставить; усложнять только по�
 
 | В пилоте | Вне пилота |
 |---|---|
-| Auth + сеть + каталог + 1 эквайринг | Автомассовые выплаты |
+| Auth + сеть + каталог + FreedomPay | Автомассовые выплаты (ISO 20022) |
 | 5 bonus-механизмов + ledger | Мультивалютность |
 | Ручное подтверждение выводов | Мобильное приложение |
 | Проводки + Excel/1С экспорт | Полноценная двойная запись |
@@ -29,26 +29,26 @@ AutoMapper и т.п.) не ставить; усложнять только по�
 
 ```
 ┌─────────────┐     HTTPS/JSON      ┌──────────────────┐
-│  apps/web   │◄───────────────────►│    apps/api      │
+│   mlm-web   │◄───────────────────►│     mlm-api      │
 │  Next.js    │   JWT httpOnly      │  ASP.NET Core 10 │
 └─────────────┘                     └────────┬─────────┘
                                              │
                     ┌────────────────────────┼────────────────────────┐
                     ▼                        ▼                        ▼
              ┌────────────┐          ┌──────────────┐          ┌────────────┐
-             │ PostgreSQL │          │   TickerQ    │          │  Acquirer  │
-             │  (primary) │          │ jobs+dashboard│         │ Epay/Kaspi │
+             │ PostgreSQL │          │  Quartz.NET  │          │ FreedomPay │
+             │  (primary) │          │ jobs+dashboard│         │ pay-in/ISO │
              └────────────┘          └──────────────┘          └────────────┘
 ```
 
 - MVP-деплой на бесплатных ресурсах — `docs/09_mvp_deployment.md`
-  (домен и эквайринг — TBD).
+  (домен — TBD; платежи — FreedomPay, см. `04_payments.md`).
 - Cloudflare — CDN + WAF, когда появится домен. Redis / брокер — **не сейчас**.
 - Staging обязателен для bonus engine.
 
 ---
 
-## 3. Backend (`apps/api`)
+## 3. Backend (`mlm-api`)
 
 ### 3.1 Стек
 | Слой | Выбор | Лицензия / заметка |
@@ -58,14 +58,14 @@ AutoMapper и т.п.) не ставить; усложнять только по�
 | Структура | Controllers + services + DbContext | без MediatR / VSA |
 | ORM | EF Core + Npgsql; CTE через `FromSqlInterpolated` | Microsoft / OSS |
 | Mapping | **Mapster** (MIT) | **не** AutoMapper |
-| Jobs | **TickerQ** (EF Core / Postgres, SignalR-дашборд) | **не** Hangfire; Quartz-план снят (ADR-0004) |
+| Jobs | **Quartz.NET** (Postgres JobStore + OSS dashboard) | **не** Hangfire / TickerQ (ADR-0004) |
 | Auth | JWT bearer + httpOnly cookie | Microsoft |
 | Errors | ProblemDetails | встроено |
 | Validation | Data annotations | FluentValidation — опционально позже |
 
 ### 3.2 Области
 Identity · Network · Catalog/Orders · Payments · BonusEngine · Ranks ·
-LeadershipPool (TickerQ job) · Withdrawals · Accounting (минимум) · Admin · Audit.
+LeadershipPool (Quartz job) · Withdrawals · Accounting (минимум) · Admin · Audit.
 Папки — по мере кода, без заранее разнесённой Clean Architecture.
 
 ### 3.3 Bonus Engine (контракт поведения)
@@ -77,7 +77,7 @@ Purchase paid (idempotent)
   → RankEngine → RankBonus
   → incremental ancestor volume update
 
-TickerQ monthly cron:
+Quartz monthly cron:
   → LeadershipPoolJob (2% world TO → Gold Director+)
 ```
 
@@ -93,7 +93,7 @@ TickerQ monthly cron:
 
 ---
 
-## 4. Frontend (`apps/web`)
+## 4. Frontend (`mlm-web`)
 
 ### 4.1 Стек (фиксированный, OSS)
 | Слой | Выбор | Заметка |
@@ -148,23 +148,21 @@ DDL: `db/schema.sql`. CTE: `db/queries_recursive.sql`.
 
 Миграции — только EF Core Migrations (не руками на проде).
 
-### 5.3 Фоновые jobs — TickerQ
-- Storage: **EF Core (Postgres)** — отдельные таблицы TickerQ в той же БД.
-- Встроенный **SignalR-дашборд** (демо инвестору + отладка соло).
-- **`AddDashboardBasicAuth()` обязательна** в проде, staging и MVP-демо —
-  не оставлять дашборд (`/tickerq-dashboard` или заданный `basePath`)
-  публично открытым без авторизации.
-- Отдельный брокер / Hangfire — **не** нужны; отказ от Hangfire по лицензии
-  в силе (ADR-0004).
-- Rollback через 6–12 мес. при нестабильности: `BackgroundService` + своя
-  таблица `job_runs` + минимальный dashboard.
+### 5.3 Фоновые jobs — Quartz.NET
+- Storage: **ADO.NET JobStore → Postgres** (таблицы Quartz в той же БД).
+- OSS-дашборд (**CrystalQuartz** или эквивалент) — демо инвестору + отладка соло.
+- **ASP.NET auth на дашборде обязательна** (Basic Auth на всех env или admin
+  policy) — не оставлять UI публично открытым.
+- Отдельный брокер / Hangfire / TickerQ — **не** нужны (ADR-0004).
+- Rollback при критике: `BackgroundService` + таблица `job_runs` + минимальный
+  status page.
 
 ### 5.4 Экспорт
 Excel/1С — генерация файла на скачивание. Object storage не нужен на пилоте.
 
 ### 5.5 Чего нет на старте
 Redis, Neo4j, search engine, event bus, MediatR, AutoMapper, Hangfire,
-Quartz.NET, monorepo tooling.
+TickerQ, monorepo tooling.
 
 ---
 
@@ -172,7 +170,8 @@ Quartz.NET, monorepo tooling.
 
 | Система | Назначение | Требования |
 |---|---|---|
-| Epay / Kaspi Pay (TBD) | приём оплаты | webhook, signature, idempotency |
+| **FreedomPay** | pay-in (Merchant/Gateway) + Result URL | `pg_sig`, идемпотентность по `pg_payment_id` |
+| FreedomPay Partner ISO 20022 | массовые выплаты (после пилота) | JWS HS256, pain.001/002, ≤500 instr. |
 | SMS gateway | verify phone / 2FA | rate limit |
 | Cloudflare | WAF/CDN | когда появится домен |
 | 1С / Excel | бух. экспорт | ручная загрузка на пилоте |
@@ -203,27 +202,32 @@ Quartz.NET, monorepo tooling.
 
 ---
 
-## 9. Repo layout (целевой)
+## 9. Repo layout
 
-`apps/api` и `apps/web` — **независимые** деревья исходников (без Nx/Turborepo/
-pnpm-workspace). Позже уедут в **разные git-репозитории**; сейчас соседствуют
-только для спеки и агентской навигации.
+Приложения: **mlm-api**, **mlm-web**.  
+Git-репозитории / локальные папки (имена **не** меняются): `almat-mlm-api`,
+`almat-mlm-web`, `almat-mlm-docs`.
+
+`mlm-api` и `mlm-web` — **независимые** деревья исходников (без Nx/Turborepo/
+pnpm-workspace). Документация — отдельный репо `almat-mlm-docs` (submodule
+`docs/` в code-репо).
 
 ```
-almat_mlm_app/
+almat-mlm-api/              ← repo → приложение mlm-api
 ├── AGENTS.md
-├── CONTEXT.md                 # lazy (domain skills)
-├── docs/                      # эта спека + доменные 0*.md + agents/ + adr/
-├── db/                        # schema + CTE reference
-├── api-contracts/
-├── apps/
-│   ├── api/                   # ASP.NET solution (отдельный будущий repo)
-│   └── web/                   # Next.js app (отдельный будущий repo)
-├── .scratch/                  # local issues + archive
-├── graphify-out/              # knowledge graph (docs/code)
-└── .codegraph/                # code intelligence index
-```
+├── docs/                   ← submodule → almat-mlm-docs
+├── mlm-api.slnx
+├── Mlm.Api/                ← .NET project (assembly mlm-api)
+└── …
 
+almat-mlm-web/              ← repo → приложение mlm-web
+├── AGENTS.md
+├── docs/                   ← submodule → almat-mlm-docs
+├── package.json            ← name: mlm-web
+└── …
+
+almat-mlm-docs/             ← канон docs (submodule в api/web)
+```
 ---
 
 ## 10. Порядок реализации
@@ -247,7 +251,7 @@ almat_mlm_app/
 | `01_stack.md` | стек + политика зависимостей |
 | `02_network_model.md` | adjacency list, циклы, агрегаты |
 | `03_bonus_engine.md` | 5 правил, пакеты, config_json |
-| `04_payments.md` | эквайринг, выводы, идемпотентность |
+| `04_payments.md` | FreedomPay pay-in + ISO settlement, идемпотентность |
 | `05_accounting.md` | минимальные проводки |
 | `06_security.md` | чеклист ИБ |
 | `07_open_questions.md` | блокер до кодинга bonus |
@@ -258,5 +262,5 @@ almat_mlm_app/
 | `docs/adr/0001-…` | Adjacency List |
 | `docs/adr/0002-…` | Next.js вместо Blazor |
 | `docs/adr/0003-…` | Rules as config_json |
-| `docs/adr/0004-…` | OSS / long-lived deps (+ TickerQ) |
-| `09_mvp_deployment.md` | бесплатный MVP-деплой (до домена/эквайринга) |
+| `docs/adr/0004-…` | OSS / long-lived deps (+ Quartz.NET) |
+| `09_mvp_deployment.md` | бесплатный MVP-деплой (до домена; FreedomPay позже) |

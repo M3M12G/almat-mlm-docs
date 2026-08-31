@@ -24,7 +24,7 @@
 | GET | `/catalog/packages` | Список пакетов (START/BUSINESS/PREMIUM) |
 | POST | `/orders` | Создание заказа |
 | GET | `/orders/{id}` | Статус заказа |
-| POST | `/payments/webhook` | Вебхук от эквайринга (идемпотентный по tx_id) |
+| POST | `/payments/webhook` | FreedomPay Result URL (идемпотентный по `pg_payment_id`) |
 
 ## Личный кабинет
 | Метод | Путь | Описание |
@@ -50,5 +50,6 @@
 ## Примечания
 - Все мутирующие эндпоинты, касающиеся денег (`orders`, `withdrawals`,
   `bonus-rules`), должны логироваться в `audit_log`.
-- `/payments/webhook` — обязательна проверка подписи запроса от провайдера +
-  идемпотентность по `payment_provider_tx_id`.
+- `/payments/webhook` — публичный Result URL FreedomPay: проверка `pg_sig` +
+  идемпотентность по `pg_payment_id` → `payment_provider_tx_id`. Без JWT.
+  Ответ в формате провайдера (`ok` / `rejected` / `error`). См. `04_payments.md`.

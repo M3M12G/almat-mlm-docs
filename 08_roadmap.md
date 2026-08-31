@@ -8,7 +8,7 @@
 - [ ] Консультация юриста по MLM-комплаенсу в РК
 - [ ] Финализировать ER-модель БД (`db/schema.sql`)
 - [ ] Настроить репозиторий, CI/CD, staging на free-tier (`09_mvp_deployment.md`)
-- [ ] TickerQ + Basic Auth на dashboard (ADR-0004)
+- [ ] Quartz.NET + ASP.NET auth на dashboard (ADR-0004)
 
 ## Этап 1 — Ядро: сеть + auth (4-6 недель)
 - [ ] Регистрация с реферальным кодом, JWT-аутентификация
@@ -22,13 +22,13 @@
 - [ ] Unilevel Bonus (+ логика "активности")
 - [ ] Matching Bonus
 - [ ] Rank Engine (11 рангов)
-- [ ] Leadership Pool (TickerQ monthly cron + protected dashboard)
+- [ ] Leadership Pool (Quartz monthly cron + protected dashboard)
 - [ ] Ledger `bonus_transactions`, тестирование расчётов на staging
 
 ## Этап 3 — Маркет + платежи (4-6 недель, частично параллельно)
 - [ ] Каталог продуктов (3 пакета + доп. товары)
 - [ ] Корзина, оформление заказа
-- [ ] Интеграция эквайринга (вебхуки, идемпотентность)
+- [ ] Интеграция FreedomPay (Result URL, `pg_sig`, идемпотентность)
 - [ ] Модуль заявок на вывод средств (ручное подтверждение)
 
 ## Этап 4 — Бухучёт + админка (2-3 недели)

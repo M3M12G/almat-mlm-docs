@@ -1,8 +1,8 @@
 # Issue tracker: Local Markdown
 
-Issues and specs for **code repos** (`almat-mlm-api`, `almat-mlm-web`) live as
-markdown files in that repo's `.scratch/`. Do **not** put tickets in
-`almat-mlm-docs`.
+Issues and specs for **code repos** (`almat-mlm-api` → app **mlm-api**,
+`almat-mlm-web` → app **mlm-web**) live as markdown files in that repo's
+`.scratch/`. Do **not** put tickets in `almat-mlm-docs`.
 
 ## Specs link — do not copy canon
 

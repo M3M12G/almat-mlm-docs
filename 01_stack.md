@@ -11,15 +11,18 @@
 | Данные | EF Core + Npgsql; CTE через `FromSqlInterpolated` | Dapper «на всякий» |
 | Структура | Controllers + services + DbContext | MediatR, Clean Architecture шаблоны |
 | DTO map | **Mapster** (MIT) | AutoMapper |
-| Jobs | **TickerQ** (MIT/Apache-2.0) | Hangfire, MassTransit, Kafka, Quartz «на вырост» |
+| Jobs | **Quartz.NET** (Apache-2.0) + Postgres JobStore | Hangfire, MassTransit, Kafka, TickerQ |
 | Auth | JWT bearer + httpOnly cookie | Identity UI / сторонние auth SaaS без нужды |
 | Errors | ProblemDetails | свой Result-фреймворк |
 | Validation | Data annotations | FluentValidation — только если атрибутов мало |
 
-**TickerQ:** EF Core storage (Postgres), встроенный SignalR-дашборд.
-`AddDashboardBasicAuth()` **обязательна в проде** (и на staging / MVP-демо) —
-не оставлять дашборд джоб публично открытым без авторизации.
-Отказ от Hangfire (Pro/лицензии) в силе — ADR-0004 дополнение.
+**Quartz.NET:** ADO.NET JobStore на Postgres; OSS-дашборд (CrystalQuartz или
+эквивалент). Дашборд **обязательно** закрыт стандартной ASP.NET авторизацией
+(Basic Auth на всех env / admin policy) — не оставлять публично открытым.
+Отказ от Hangfire (Pro/лицензии) в силе — ADR-0004.
+
+**Платежи:** **FreedomPay** (KZ) — Merchant/Gateway pay-in + Result URL;
+после пилота — ISO 20022 settlement для массовых выплат. См. `04_payments.md`.
 
 **PostgreSQL** — `WITH RECURSIVE` + JSONB для `bonus_rules.config_json`.  
 Redis / брокер — не ставим.
@@ -46,17 +49,16 @@ Redis / брокер — не ставим.
 **Recharts (watch-item):** исторически бывали периоды медленной реакции
 мейнтейнеров на issues — MIT, adoption большой, форкать при необходимости
 несложно. При проблемах со стабильностью в будущем рассмотреть **visx**
-(Airbnb, MIT) как альтернативу для графиков. (Аналог принятого риска с планом
-пересмотра, как у TickerQ в ADR-0004.)
+(Airbnb, MIT) как альтернативу для графиков.
 
 Не брать: платные UI-kit (MUI X Pro и аналоги), тяжёлые «enterprise» design systems,
 второй state-manager «на вырост».
 
 ## Инфра
 - MVP на **бесплатных** тирах — см. `docs/09_mvp_deployment.md`
-  (пока нет своего домена и платёжки).
+  (пока нет своего домена; FreedomPay webhook нужен публичный HTTPS URL API).
 - Staging для bonus engine (отдельный env / проект, не prod DB).
-- Один эквайринг + webhook + идемпотентность — когда появятся реквизиты.
+- FreedomPay + Result URL + идемпотентность — см. `04_payments.md`.
 
 ## Для агентов
 1. Стек = этот файл + `TECH_SPEC.md` + ADR-0002/0004. Не выбирать заново.

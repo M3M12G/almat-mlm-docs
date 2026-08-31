@@ -2,7 +2,9 @@
 
 Каноническая документация пилота Almat MLM. **Кода здесь нет.**
 
-Подключается в `almat-mlm-api` и `almat-mlm-web` как git submodule по пути `docs/`.
+Приложения: **mlm-api**, **mlm-web**.  
+Подключается в репозитории `almat-mlm-api` и `almat-mlm-web` как git submodule
+по пути `docs/` (имена репо/папок не совпадают с именами приложений — так и задумано).
 
 ## Start here
 
@@ -10,7 +12,7 @@
 2. [`07_open_questions.md`](07_open_questions.md) — закрыть до bonus engine
 3. [`08_roadmap.md`](08_roadmap.md) — этапы
 4. [`09_mvp_deployment.md`](09_mvp_deployment.md) — бесплатный MVP-деплой
-5. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + TickerQ
+5. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + Quartz.NET
 
 ## Layout
 

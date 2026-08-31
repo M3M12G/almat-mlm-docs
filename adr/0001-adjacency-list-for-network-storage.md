@@ -13,7 +13,7 @@
 Хранить дерево как **Adjacency List**: `users.sponsor_id → users.id`, индекс
 по `sponsor_id`. Обход вверх/вниз — `WITH RECURSIVE`. Агрегаты команды
 (`total_team_volume` и т.п.) — материализованные, инкремент вверх при покупке;
-полный down-scan только в batch-сверке (**TickerQ** job).
+полный down-scan только в batch-сверке (**Quartz** job).
 
 ## Альтернативы
 
