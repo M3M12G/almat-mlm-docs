@@ -1,7 +1,8 @@
 # Almat MLM — Техническая спецификация (пилот)
 
 Каноническая техспека приложения. Детали домена — в соседних файлах `docs/0*.md`,
-схема БД — `db/schema.sql`, API — `api-contracts/endpoints.md`.
+схема — EF-сущности (ADR-0005), CTE — `db/queries_recursive.sql`,
+API — `api-contracts/endpoints.md`.
 
 **Статус:** пилот · соло · backend **.NET 10** + frontend **Next.js**  
 **Компенсационный план и деньги в коде не трогать**, пока не закрыты `07_open_questions.md`.  
@@ -54,13 +55,15 @@ AutoMapper и т.п.) не ставить; усложнять только по�
 | Слой | Выбор | Лицензия / заметка |
 |---|---|---|
 | Runtime | **.NET 10** ASP.NET Core Web API | Microsoft |
-| API | REST/JSON `/api/v1` | — |
+| API | REST/JSON `/api` | — |
 | Структура | Controllers + services + DbContext | без MediatR / VSA |
-| ORM | EF Core + Npgsql; CTE через `FromSqlInterpolated` | Microsoft / OSS |
+| ORM | EF Core code-first + Npgsql; CTE — `FromSqlInterpolated` | Microsoft / OSS; ADR-0005 |
 | Mapping | **Mapster** (MIT) | **не** AutoMapper |
-| Jobs | **Quartz.NET** (Postgres JobStore + OSS dashboard) | **не** Hangfire / TickerQ (ADR-0004) |
-| Auth | JWT bearer + httpOnly cookie | Microsoft |
-| Errors | ProblemDetails | встроено |
+| Jobs | **Quartz.NET** + **Quartz.Dashboard** (Postgres JobStore, policy `QuartzDashboard`) | **не** Hangfire / TickerQ (ADR-0004) |
+| OpenAPI UI | **Scalar.AspNetCore** (`OpenApi:Enabled`) | MIT; не Swashbuckle UI |
+| Auth | JWT + httpOnly cookie; refresh-сессия в БД (ротация + Quartz cleanup) | Microsoft |
+| Errors | ProblemDetails, `IExceptionHandler` | RFC 9457; без своего Result-конверта |
+| PII | Data Protection keys в Postgres; EF converter на ИИН/реквизитах | Microsoft |
 | Validation | Data annotations | FluentValidation — опционально позже |
 
 ### 3.2 Области
@@ -114,7 +117,7 @@ Quartz monthly cron:
 Public (landing/register/login) · Cabinet · Shop · Admin.
 
 ### 4.3 Для агентов
-1. Не менять стек самовольно (ADR-0002, ADR-0004).
+1. Не менять стек самовольно (ADR-0002, ADR-0004, ADR-0005).
 2. Денежные экраны — ручной review.
 3. Не ставить npm «на всякий случай».
 
@@ -130,7 +133,8 @@ Public (landing/register/login) · Cabinet · Shop · Admin.
 - вниз — дорого → материализованные агрегаты (`total_team_volume`, rank composition),
   инкремент вверх при покупке; полный down-scan только в batch сверке.
 
-DDL: `db/schema.sql`. CTE: `db/queries_recursive.sql`.
+JSON: **System.Text.Json** (BCL). Newtonsoft.Json не ставить.
+Схема — code-first (ADR-0005). CTE-справочник: `db/queries_recursive.sql`.
 
 ### 5.2 Ключевые таблицы
 | Таблица | Роль |
@@ -144,15 +148,19 @@ DDL: `db/schema.sql`. CTE: `db/queries_recursive.sql`.
 | `pool_periods` / `pool_distributions` | Leadership Pool |
 | `withdrawal_requests` | выводы (ручной approve на пилоте) |
 | `accounting_entries` | минимальные проводки |
-| `audit_log` | кто трогал финансы |
+| `audit_log` | колоночный diff (ChangeTracker) + actor |
 
-Миграции — только EF Core Migrations (не руками на проде).
+Миграции генерируются `dotnet ef` (два контекста, ADR-0005). Накат — `DbMigrator`
+при старте API. Не руками на проде.
 
 ### 5.3 Фоновые jobs — Quartz.NET
-- Storage: **ADO.NET JobStore → Postgres** (таблицы Quartz в той же БД).
-- OSS-дашборд (**CrystalQuartz** или эквивалент) — демо инвестору + отладка соло.
-- **ASP.NET auth на дашборде обязательна** (Basic Auth на всех env или admin
-  policy) — не оставлять UI публично открытым.
+- Storage: **ADO.NET JobStore → Postgres**, отдельный `QuartzDbContext`
+  (vendor DDL `qrtz_*`, история `__ef_migrations_history_quartz`).
+  Та же БД, что и домен, пока не появится причина сплитовать.
+- Дашборд — **Quartz.Dashboard** (first-party, Apache-2.0) — демо инвестору + отладка соло.
+- **ASP.NET policy `QuartzDashboard` обязательна** (Basic scheme + роль
+  `SchedulerAdmin`; позже — admin JWT). Policy вешается самим пакетом на
+  страницы, SignalR hub, Blazor circuit и static assets. Публичный UI запрещён.
 - Отдельный брокер / Hangfire / TickerQ — **не** нужны (ADR-0004).
 - Rollback при критике: `BackgroundService` + таблица `job_runs` + минимальный
   status page.
@@ -256,11 +264,12 @@ almat-mlm-docs/             ← канон docs (submodule в api/web)
 | `06_security.md` | чеклист ИБ |
 | `07_open_questions.md` | блокер до кодинга bonus |
 | `08_roadmap.md` | этапы |
-| `db/schema.sql` | DDL |
+| `db/README.md` | как читать схему (code-first, ADR-0005) |
 | `db/queries_recursive.sql` | CTE |
 | `api-contracts/endpoints.md` | REST черновик |
 | `docs/adr/0001-…` | Adjacency List |
 | `docs/adr/0002-…` | Next.js вместо Blazor |
 | `docs/adr/0003-…` | Rules as config_json |
 | `docs/adr/0004-…` | OSS / long-lived deps (+ Quartz.NET) |
+| `docs/adr/0005-…` | EF code-first, QuartzDbContext, System.Text.Json |
 | `09_mvp_deployment.md` | бесплатный MVP-деплой (до домена; FreedomPay позже) |

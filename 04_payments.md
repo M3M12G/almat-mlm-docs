@@ -28,7 +28,7 @@ Pay-in через FreedomPay Gateway / Merchant API (`https://api.freedompay.kz`
 - Test mode: merchant в тесте или `pg_testing_mode=1` на конкретной транзакции
   (уточнять у менеджера FreedomPay).
 
-Эндпоинт: `POST /api/v1/payments/webhook` (= Result URL в кабинете FreedomPay).
+Эндпоинт: `POST /api/payments/webhook` (= Result URL в кабинете FreedomPay).
 
 Конфиг (env / user-secrets, не в git):
 

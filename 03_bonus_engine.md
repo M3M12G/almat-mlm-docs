@@ -107,8 +107,8 @@ Leadership Pool.
 1 балл = 27 397 ₸. Золотой директор (1 балл) получает 27 397 ₸, Амбассадор
 (15 баллов) — 410 959 ₸.
 
-Реализация — **Quartz cron раз в месяц** (Postgres JobStore, дашборд с
-ASP.NET Basic Auth / admin policy — ADR-0004), не расчёт на лету.
+Реализация — **Quartz cron раз в месяц** (Postgres JobStore, Quartz.Dashboard
+с policy `QuartzDashboard` — ADR-0004), не расчёт на лету.
 
 ---
 

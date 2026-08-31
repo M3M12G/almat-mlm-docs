@@ -8,18 +8,28 @@
 | Нужно | Берём | Не берём на старте |
 |---|---|---|
 | Web API | ASP.NET Core | Blazor UI |
-| Данные | EF Core + Npgsql; CTE через `FromSqlInterpolated` | Dapper «на всякий» |
+| Данные | EF Core code-first + Npgsql; CTE через `FromSqlInterpolated` | schema-first SQL, Dapper «на всякий» |
 | Структура | Controllers + services + DbContext | MediatR, Clean Architecture шаблоны |
 | DTO map | **Mapster** (MIT) | AutoMapper |
 | Jobs | **Quartz.NET** (Apache-2.0) + Postgres JobStore | Hangfire, MassTransit, Kafka, TickerQ |
-| Auth | JWT bearer + httpOnly cookie | Identity UI / сторонние auth SaaS без нужды |
-| Errors | ProblemDetails | свой Result-фреймворк |
+| Auth | JWT bearer + httpOnly cookie; refresh-сессия в Postgres (ротация) | Identity UI / OpenIddict / auth SaaS |
+| Errors | ProblemDetails через `IExceptionHandler` | свой Result-конверт в JSON |
+| PII at rest | Data Protection + EF ValueConverter на колонках | самописный AES с фиксированным IV |
 | Validation | Data annotations | FluentValidation — только если атрибутов мало |
+| JSON | **System.Text.Json** | Newtonsoft.Json |
+| OpenAPI UI | **Scalar.AspNetCore** (MIT) | Swashbuckle UI / NSwag |
 
-**Quartz.NET:** ADO.NET JobStore на Postgres; OSS-дашборд (CrystalQuartz или
-эквивалент). Дашборд **обязательно** закрыт стандартной ASP.NET авторизацией
-(Basic Auth на всех env / admin policy) — не оставлять публично открытым.
-Отказ от Hangfire (Pro/лицензии) в силе — ADR-0004.
+**Схема БД — code-first** (ADR-0005): сущности + `dotnet ef migrations add`.
+Накат при старте API (`DbMigrator`); seed каталогов — `SeedDbContext`.
+Quartz JobStore — отдельный `QuartzDbContext`, vendor SQL в миграции.
+Запросы сначала в EF; `.sql` только после профилирования.
+
+**Quartz.NET:** ADO.NET JobStore на Postgres; дашборд — first-party
+**Quartz.Dashboard** (Apache-2.0, тот же пакет/версия, что и Quartz). Это
+операторский Blazor UI внутри API (`/quartz`), не продуктовый фронт (ADR-0002
+по-прежнему Next.js). Auth: ASP.NET policy `QuartzDashboard` (Basic scheme +
+роль `SchedulerAdmin`) — [официальная дока](https://www.quartz-scheduler.net/documentation/quartz-3.x/packages/dashboard.html#policy-and-role-based-authorization).
+Публичный дашборд запрещён. Отказ от Hangfire (Pro/лицензии) в силе — ADR-0004.
 
 **Платежи:** **FreedomPay** (KZ) — Merchant/Gateway pay-in + Result URL;
 после пилота — ISO 20022 settlement для массовых выплат. См. `04_payments.md`.
@@ -61,6 +71,6 @@ Redis / брокер — не ставим.
 - FreedomPay + Result URL + идемпотентность — см. `04_payments.md`.
 
 ## Для агентов
-1. Стек = этот файл + `TECH_SPEC.md` + ADR-0002/0004. Не выбирать заново.
+1. Стек = этот файл + `TECH_SPEC.md` + ADR-0002/0004/0005. Не выбирать заново.
 2. Новый NuGet/npm вне таблицы — **спросить человека**.
 3. Денежные экраны — ручной review.

@@ -13,6 +13,7 @@
 3. [`08_roadmap.md`](08_roadmap.md) — этапы
 4. [`09_mvp_deployment.md`](09_mvp_deployment.md) — бесплатный MVP-деплой
 5. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + Quartz.NET
+6. [`adr/0005-…`](adr/0005-ef-code-first-and-json.md) — code-first EF, два контекста, STJ
 
 ## Layout
 
@@ -22,7 +23,7 @@ almat-mlm-docs/          ← корень репо (= docs/ в api/web посл�
 ├── 00_…09_*.md
 ├── adr/
 ├── agents/              # Matt Pocock skills config
-├── db/                  # schema.sql, queries_recursive.sql
+├── db/                  # README + queries_recursive.sql (схема = EF, ADR-0005)
 └── api-contracts/
 ```
 
@@ -32,7 +33,7 @@ almat-mlm-docs/          ← корень репо (= docs/ в api/web посл�
 |---|---|
 | `TECH_SPEC.md` | `docs/TECH_SPEC.md` |
 | `adr/` | `docs/adr/` |
-| `db/schema.sql` | `docs/db/schema.sql` |
+| `db/README.md` | `docs/db/README.md` |
 | `api-contracts/` | `docs/api-contracts/` |
 
 ## Обновление submodule в api/web

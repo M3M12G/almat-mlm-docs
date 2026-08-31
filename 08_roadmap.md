@@ -6,9 +6,9 @@
 ## Этап 0 — Подготовка (2-3 недели)
 - [ ] Закрыть все пункты из `07_open_questions.md` письменно с маркетингом
 - [ ] Консультация юриста по MLM-комплаенсу в РК
-- [ ] Финализировать ER-модель БД (`db/schema.sql`)
+- [ ] Финализировать ER-модель (EF-сущности, ADR-0005)
 - [ ] Настроить репозиторий, CI/CD, staging на free-tier (`09_mvp_deployment.md`)
-- [ ] Quartz.NET + ASP.NET auth на dashboard (ADR-0004)
+- [ ] Quartz.NET + Quartz.Dashboard с policy `QuartzDashboard` (ADR-0004)
 
 ## Этап 1 — Ядро: сеть + auth (4-6 недель)
 - [ ] Регистрация с реферальным кодом, JWT-аутентификация

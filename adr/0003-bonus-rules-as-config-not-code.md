@@ -32,4 +32,4 @@ engine читает активное правило по `code` / периоду
 - ⚠️ Версионирование `active_from` / `active_to` обязательно для пересчётов
 - ⚠️ Агент **не хардкодит** проценты/пороги в коде — только чтение `config_json`
 - ⚠️ До закрытия `docs/07_open_questions.md` BonusEngine не реализовывать
-- 📄 Детали: `docs/03_bonus_engine.md`, `db/schema.sql` (`bonus_rules`)
+- 📄 Детали: `docs/03_bonus_engine.md`, таблица `bonus_rules` (ADR-0005)

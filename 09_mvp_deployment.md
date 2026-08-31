@@ -89,14 +89,14 @@ HTTPS API URL (Result URL должен быть публичным).
 - Env: `ConnectionStrings__Default`, JWT keys, Quartz dashboard credentials,
   позже — `FreedomPay__*`.
 - Health: `GET /health` — для cold-start ping.
-- **Quartz dashboard:** ASP.NET Basic Auth (или admin policy) обязателен;
-  не публиковать без пароля (см. ADR-0004, `AGENTS.md`).
+- **Quartz.Dashboard:** policy `QuartzDashboard` обязательна (Basic scheme +
+  роль `SchedulerAdmin`); не публиковать без policy (ADR-0004, `AGENTS.md`).
 
 ### 4.3 Postgres → Neon
 - Две ветки: `staging`, `demo`.
-- Миграции EF — из CI или one-shot job на deploy staging
-  (не auto-migrate demo без подтверждения).
-- Таблицы Quartz JobStore — в той же БД (миграции/скрипт DDL Quartz).
+- Схема накатывается `DbMigrator` при старте API (оба контекста + seed
+  каталогов). Destructive drop — только явно.
+- Таблицы Quartz JobStore — та же БД, отдельный `QuartzDbContext` (ADR-0005).
 
 ---
 
@@ -122,7 +122,7 @@ HTTPS API URL (Result URL должен быть публичным).
   Mitigation: (a) внешний free cron (cron-job.org) пингует `/health` каждые 10–14 мин;
   (b) или Fly.io с минимальным always-on, если лимит позволяет;
   (c) Leadership Pool на MVP запускать **вручную** из дашборда Quartz на демо.
-- Дашборд: Basic Auth / admin policy; URL не светить в публичных README.
+- Дашборд: policy `QuartzDashboard` (Basic + `SchedulerAdmin`); URL не светить в публичных README.
 
 ---
 
@@ -169,7 +169,7 @@ EF migrate — отдельный job с approval.
 3. Vercel: web → `NEXT_PUBLIC_API_URL`
 4. Mock payments включён **только** на staging/demo
 5. Прогрев API перед демо инвестору
-6. Открыть Quartz dashboard по Basic Auth — показать Leadership Pool job
+6. Открыть Quartz.Dashboard (`/quartz`) по Basic Auth — показать Leadership Pool job
 7. Зафиксировать URL в `.scratch/` / README demo-секции (не коммитить пароли)
 
 Связанные: ADR-0004 (Quartz), `01_stack.md`, `TECH_SPEC.md`, `04_payments.md`,

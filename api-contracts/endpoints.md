@@ -1,6 +1,6 @@
 # API Endpoints — черновик
 
-Базовый URL: `/api/v1`. Формат — JSON REST. Аутентификация — JWT в httpOnly cookie.
+Базовый URL: `/api`. Формат — JSON REST. Аутентификация — JWT в httpOnly cookie.
 
 ## Auth
 | Метод | Путь | Описание |
