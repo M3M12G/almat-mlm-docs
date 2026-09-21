@@ -1,0 +1,1273 @@
+<title>Калибровка маркетинг-плана Almat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f6f7f9; --panel:#ffffff; --sunk:#eef0f4; --line:#dde1e8; --line-strong:#c4cad4;
+  --ink:#141821; --ink-2:#4a5263; --ink-3:#7a8294;
+  --accent:#1f5fbf; --accent-soft:#e3ecfa;
+  --good:#1a7f4b; --good-soft:#e2f3ea; --warn:#a86200; --warn-soft:#fbefd9; --bad:#c0362c; --bad-soft:#fbe4e2;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --grid:#e6e9ee;
+  --sans:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#11141a; --panel:#181c24; --sunk:#1f242e; --line:#2a303b; --line-strong:#3a4250;
+    --ink:#eef1f6; --ink-2:#b3bac7; --ink-3:#8790a0;
+    --accent:#6ea2f0; --accent-soft:#1d2a40;
+    --good:#4cc488; --good-soft:#15291f; --warn:#e3a33f; --warn-soft:#2d2415; --bad:#f07a70; --bad-soft:#321b1a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --grid:#262b35;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#11141a; --panel:#181c24; --sunk:#1f242e; --line:#2a303b; --line-strong:#3a4250;
+  --ink:#eef1f6; --ink-2:#b3bac7; --ink-3:#8790a0;
+  --accent:#6ea2f0; --accent-soft:#1d2a40;
+  --good:#4cc488; --good-soft:#15291f; --warn:#e3a33f; --warn-soft:#2d2415; --bad:#f07a70; --bad-soft:#321b1a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --grid:#262b35;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+h1{font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-2);margin:4px 0 0;max-width:70ch}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.presets span{color:var(--ink-3);font-size:12px;margin-right:4px}
+button{font:inherit;cursor:pointer}
+.chip{border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+aside.params{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+@media (min-width:901px){aside.params{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}}
+.params-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);gap:8px}
+.params-head b{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.run{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:6px 12px;font-weight:600;font-size:13px}
+details{border-bottom:1px solid var(--line)}
+details:last-child{border-bottom:0}
+summary{padding:10px 14px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--ink-3);font-family:var(--mono)}
+details[open] summary::after{content:"−"}
+.fields{display:grid;gap:8px;padding:0 14px 14px}
+.f{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:8px;align-items:center}
+.f label{color:var(--ink-2);font-size:13px}
+.f small{display:block;color:var(--ink-3);font-size:11px;line-height:1.3}
+.f input[type=number],.f select{width:100%;font:inherit;font-family:var(--mono);font-size:13px;padding:5px 7px;border:1px solid var(--line-strong);border-radius:5px;background:var(--sunk);color:var(--ink);text-align:right}
+.f select{text-align:left;font-family:var(--sans)}
+.f input[type=checkbox]{justify-self:end;width:18px;height:18px;accent-color:var(--accent)}
+.grp-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-top:6px}
+table.ranks-in{width:100%;border-collapse:collapse;font-size:12px}
+table.ranks-in th{font-weight:500;color:var(--ink-3);text-align:right;padding:2px 4px}
+table.ranks-in th:first-child{text-align:left}
+table.ranks-in td{padding:2px 0}
+table.ranks-in td:first-child{color:var(--ink-2);padding-right:6px}
+table.ranks-in input{width:100%;font-family:var(--mono);font-size:12px;padding:3px 5px;border:1px solid var(--line-strong);border-radius:4px;background:var(--sunk);color:var(--ink);text-align:right}
+
+main{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:2px}
+.kpi .l{font-size:12px;color:var(--ink-2)}
+.kpi .v{font-family:var(--mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .h{font-size:11px;color:var(--ink-3)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;width:max-content}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+section.card h2{font-size:15px;margin:0 0 2px;font-weight:600}
+section.card .note{color:var(--ink-3);font-size:12px;margin:0 0 12px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--ink-3);font-family:var(--mono);font-size:10px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line-strong);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:180px;z-index:3}
+.tip b{display:block;margin-bottom:4px}
+.tip .r{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tip .r span:first-child{font-family:var(--sans);color:var(--ink-2)}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+.tbl{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:500;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t td:first-child{font-family:var(--sans)}
+table.t tr.total td{font-weight:600;border-top:1px solid var(--line-strong)}
+.muted{color:var(--ink-3)}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);margin:0}
+.f .desc{grid-column:1 / -1;font-size:12px;color:var(--ink-2);background:var(--sunk);border-radius:5px;padding:6px 8px;line-height:1.4;margin-top:-2px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 14px}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;color:var(--ink-2);font-weight:500;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.gloss h3{font-size:13px;margin:18px 0 6px;font-weight:600}
+.gloss h3:first-child{margin-top:0}
+table.t td.wrap{white-space:normal;font-family:var(--sans);text-align:left;min-width:260px;color:var(--ink-2)}
+table.t td code,.gloss code{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.fx{display:grid;gap:14px}
+.fx article{display:grid;gap:6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.fx article:last-child{border-bottom:0;padding-bottom:0}
+.fx h3{font-size:14px;margin:0;font-weight:600}
+.fx p{margin:0;color:var(--ink-2);max-width:80ch}
+.fx pre{margin:0;font-family:var(--mono);font-size:12.5px;background:var(--sunk);border-radius:6px;padding:10px 12px;overflow-x:auto;white-space:pre;color:var(--ink);line-height:1.6}
+.fx pre .c{color:var(--ink-3)}
+.fx .eg{font-size:12px;color:var(--ink-2)}
+.fx .eg b{font-family:var(--mono);font-weight:600;color:var(--ink)}
+.findings{margin:0;padding-left:18px;display:grid;gap:6px;max-width:80ch}
+.findings li::marker{color:var(--ink-3)}
+textarea#cfgOut{width:100%;min-height:260px;font-family:var(--mono);font-size:12px;background:var(--sunk);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px}
+.variant{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 20px;align-items:end}
+@media (max-width:900px){.variant{grid-template-columns:minmax(0,1fr)}}
+.v-fields{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);grid-template-rows:auto auto;grid-auto-flow:column;gap:4px 12px}
+@media (max-width:640px){.v-fields{grid-template-columns:minmax(0,1fr);grid-auto-flow:row}}
+.v-fields label{font-size:12px;color:var(--ink-2)}
+.v-fields input{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--sunk);color:var(--ink)}
+.v-actions{display:flex;flex-wrap:wrap;gap:6px}
+.btn{border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);border-radius:6px;padding:7px 12px;font-size:13px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{border-color:transparent;color:var(--ink-2)}
+.v-msg{grid-column:1 / -1;margin:0;font-size:12px;color:var(--ink-2);min-height:0}
+.v-msg:empty{display:none}
+.v-msg.ok{color:var(--good)} .v-msg.warn{color:var(--warn)} .v-msg.bad{color:var(--bad)}
+.v-msg ul{margin:4px 0 0;padding-left:18px}
+.row-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.status{font-size:12px;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Калибровка маркетинг-плана Almat</h1>
+      <p class="sub">Помесячная модель роста сети. Все 5 бонусов считаются по правилам из <code>03_bonus_engine.md</code>. Меняйте ставки, баллы (BV) и допущения о росте — пересчёт идёт сразу. Цифры по умолчанию — пример, а не прогноз.</p>
+    </div>
+    <div class="presets" role="group" aria-label="Сценарии роста">
+      <span>Сценарий роста</span>
+      <button class="chip" data-preset="base" aria-pressed="true">Базовый · 36 мес</button>
+      <button class="chip" data-preset="strong">Сильный пилот</button>
+      <button class="chip" data-preset="mature">Насыщение · 60 мес</button>
+    </div>
+  </header>
+
+  <section class="variant" aria-label="Вариант плана">
+    <div class="v-fields">
+      <label for="vName">Название варианта</label>
+      <input id="vName" type="text" maxlength="80" placeholder="Например: Инвестор, консервативный">
+      <label for="vNote">Комментарий</label>
+      <input id="vNote" type="text" maxlength="500" placeholder="Почему такие параметры — увидит тот, кто откроет файл">
+    </div>
+    <div class="v-actions">
+      <button class="btn primary" id="btnExport">Экспорт в файл</button>
+      <button class="btn" id="btnImport">Импорт из файла</button>
+      <input type="file" id="fileImport" accept=".json,application/json" hidden>
+      <button class="btn ghost" id="btnReset">Сбросить к исходным</button>
+    </div>
+    <p class="v-msg" id="vMsg" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="layout">
+    <aside class="params" aria-label="Параметры">
+      <div class="params-head"><b>Параметры</b><span class="status" id="status"></span><button class="run" id="runBtn">Пересчитать</button></div>
+      <div class="params-head" style="padding-block:8px"><label class="toggle" for="showDesc"><input type="checkbox" id="showDesc"> Описания под полями</label><a href="#ref" class="toggle" style="text-decoration:none;color:var(--accent)">Справочник ↓</a></div>
+      <div id="form"></div>
+    </aside>
+
+    <main>
+      <div class="kpis" id="kpis"></div>
+
+      <section class="card">
+        <h2>Выплаты партнёрам, % от оборота по месяцам</h2>
+        <p class="note">Столбцы по видам бонусов. Пунктир — целевой потолок выплат. Наведите на месяц, чтобы увидеть детали.</p>
+        <div class="legend" id="lg1"></div>
+        <div class="chart" id="ch1"></div>
+      </section>
+
+      <div class="two">
+        <section class="card">
+          <h2>Оборот и выплаты за период</h2>
+          <p class="note">Куда уходит каждый тенге оборота (с НДС)</p>
+          <div class="tbl"><table class="t" id="waterfall"></table></div>
+        </section>
+        <section class="card">
+          <h2>Размер сети</h2>
+          <p class="note">Всего партнёров и активных (прошли ежемесячную активацию)</p>
+          <div class="legend" id="lg2"></div>
+          <div class="chart" id="ch2"></div>
+        </section>
+      </div>
+
+      <div class="two">
+        <section class="card">
+          <h2>Максимум с одной покупки</h2>
+          <p class="note">Верхняя граница: вся цепочка активна и заполнена на 10 уровней, у спонсора и получателей Matching — старший пакет. Без премий за ранги.</p>
+          <div class="tbl"><table class="t" id="perPurchase"></table></div>
+        </section>
+        <section class="card">
+          <h2>Кто сколько заработал</h2>
+          <p class="note">Итоги по всем партнёрам за период</p>
+          <div class="tbl"><table class="t" id="dist"></table></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Ранги на конец периода</h2>
+        <p class="note">Ранг не теряется. «Затраты» — пакет, апгрейды и активации партнёра.</p>
+        <div class="tbl"><table class="t" id="ranks"></table></div>
+      </section>
+
+      <section class="card">
+        <h2>Что видно из текущего прогона</h2>
+        <ul class="findings" id="findings"></ul>
+      </section>
+
+      <section class="card" id="ref">
+        <h2>Справочник</h2>
+        <p class="note">Что значит каждый параметр и как считается каждая цифра. Примеры пересчитываются по текущим значениям.</p>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tabFx" aria-selected="true" aria-controls="panelFx">Формулы расчёта</button>
+          <button class="tab" role="tab" id="tabGl" aria-selected="false" aria-controls="panelGl">Параметры</button>
+        </div>
+        <div id="panelFx" role="tabpanel" aria-labelledby="tabFx" class="fx"></div>
+        <div id="panelGl" role="tabpanel" aria-labelledby="tabGl" class="gloss" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Конфиг в JSON</h2>
+        <p class="note">Тот же файл, что даёт «Экспорт». Блок <code>plan</code> — будущий <code>bonus_rules.config_json</code>. Можно вставить сюда JSON, присланный текстом, и нажать «Применить».</p>
+        <textarea id="cfgOut" spellcheck="false" aria-label="Конфиг в JSON"></textarea>
+        <div class="row-btns">
+          <button class="btn primary" id="btnApplyText">Применить JSON из поля</button>
+          <button class="btn" id="btnCopy">Копировать</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(function (g) {
+  'use strict';
+
+  const RANKS = [
+    ['Консультант', 0, 0],
+    ['Старший консультант', 0, 0],
+    ['Менеджер', 0, 0],
+    ['Старший менеджер', 0, 0],
+    ['Директор', 0, 0],
+    ['Серебряный директор', 500000, 0],
+    ['Бронзовый директор', 1000000, 0],
+    ['Золотой директор', 2000000, 1],
+    ['Платиновый директор', 5000000, 3],
+    ['Бриллиантовый директор', 10000000, 7],
+    ['Амбассадор', 25000000, 15],
+  ].map(([name, bonus, points]) => ({ name, bonus, points }));
+
+  const DEFAULTS = {
+    plan: {
+      packages: [
+        { code: 'START', price: 18000, bv: 100 },
+        { code: 'BUSINESS', price: 54000, bv: 300 },
+        { code: 'PREMIUM', price: 162000, bv: 900 },
+      ],
+      bvValue: 180, // ₸ за 1 BV при расчёте процентных бонусов
+      activation: { price: 9000, bv: 50, joinMonthCounts: true },
+      // ставка Direct — по текущему пакету спонсора, без ограничения числа ЛП
+      direct: { byPackage: [10, 15, 20], requiresActive: true, onUpgrade: true },
+      unilevel: {
+        levels: 10, rate: 2, startAtSponsor: false, compression: false,
+        onPackage: true, onUpgrade: true, onActivation: false,
+      },
+      // ставка Matching — по текущему пакету получателя; minWithInvitee — min(моя, по пакету ЛП)
+      matching: { byPackage: [5, 10, 15], depth: 1, onDirect: true, onUnilevel: true, requiresActive: true, minWithInvitee: false },
+      // packageCounts — пакет и апгрейды ЛП идут в зачёт квалификации; onActivationOnly — ранг пересчитывается только при своей активации
+      rank: { legs: 2, qualifyMult: 1.0, packageCounts: true, onActivationOnly: true, requiresActive: true, ranks: RANKS },
+      pool: { pct: 2, base: 'turnover', minRank: 8, requiresActive: true },
+      cap: { enabled: false, pct: 50 },
+    },
+    econ: { vatPct: 16, cogsPct: 25, acquiringPct: 2, logisticsPct: 5 },
+    growth: {
+      months: 36, seed: 42, seedLeaders: 30,
+      builderShare: 0.1, lambdaBuilder: 0.8, lambdaRegular: 0.05, lambdaDecay: 0.97,
+      marketCap: 100000,
+      mix: [0.6, 0.3, 0.1],
+      activeBuilder: 0.9, activeRegular: 0.6, churnAfter: 3,
+      upgradeProb: 0.03, jumpShare: 0.3,
+    },
+  };
+
+  const TYPES = ['direct', 'unilevel', 'matching', 'rank', 'pool'];
+
+  function rng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function poisson(l, r) {
+    if (l <= 0) return 0;
+    const L = Math.exp(-l);
+    let k = 0, p = 1;
+    do { k++; p *= r(); } while (p > L);
+    return k - 1;
+  }
+  function pick(weights, r) {
+    const s = weights.reduce((a, b) => a + b, 0);
+    let x = r() * s;
+    for (let i = 0; i < weights.length; i++) { x -= weights[i]; if (x <= 0) return i; }
+    return weights.length - 1;
+  }
+
+  function run(cfg) {
+    const P = cfg.plan, G = cfg.growth, E = cfg.econ;
+    const R = rng(G.seed);
+    const nR = P.rank.ranks.length;
+
+    // member storage (growable arrays)
+    const sponsor = [], pkg = [], builder = [], joinM = [], activeM = [], streak = [], churned = [];
+    const spent = [], qualified = [], qualCount = [], rank = [], cnt = [];
+    const earn = [], cost = [], monthEarn = [], monthBase = [];
+    let N = 0;
+
+    const totals = { turnover: 0, byType: {}, breakage: 0, byStream: { package: 0, upgrade: 0, activation: 0 } };
+    TYPES.forEach(t => (totals.byType[t] = 0));
+    const months = [];
+    let M; // current month record
+    let touched = []; // members with monthEarn this month
+
+    const isActive = (i, t) => activeM[i] === t;
+
+    function credit(i, type, amt) {
+      if (amt <= 0) return;
+      if (monthEarn[i] === 0) touched.push(i);
+      monthEarn[i] += amt;
+      M.byType[type] += amt;
+      if (type === 'direct' || type === 'unilevel') {
+        if ((type === 'direct' && P.matching.onDirect) || (type === 'unilevel' && P.matching.onUnilevel)) monthBase[i] += amt;
+      }
+    }
+
+    function evaluateRank(start, t) {
+      const stack = [start];
+      while (stack.length) {
+        const i = stack.pop();
+        if (i < 0) continue;
+        if (P.rank.requiresActive && !isActive(i, t)) continue;
+        const old = rank[i];
+        let r = old;
+        while (r < nR) {
+          const ok = r === 0 ? qualCount[i] >= P.rank.legs : cnt[i][r] >= P.rank.legs;
+          if (!ok) break;
+          r++;
+          credit(i, 'rank', P.rank.ranks[r - 1].bonus);
+          M.rankUps++;
+        }
+        if (r > old) {
+          rank[i] = r;
+          const s = sponsor[i];
+          if (s >= 0) {
+            for (let k = old + 1; k <= r; k++) cnt[s][k]++;
+            // спонсор пересчитается при своей активации, если ранг растёт только по активации
+            if (!P.rank.onActivationOnly) stack.push(s);
+          }
+        }
+      }
+    }
+
+    function addSpent(i, amount, t) {
+      spent[i] += amount;
+      if (!qualified[i] && spent[i] >= P.packages[pkg[i]].price * P.rank.qualifyMult) {
+        qualified[i] = true;
+        const s = sponsor[i];
+        if (s >= 0) { qualCount[s]++; if (!P.rank.onActivationOnly) evaluateRank(s, t); }
+      }
+    }
+
+    function unilevel(buyer, bv, t) {
+      const U = P.unilevel;
+      let node = sponsor[buyer];
+      if (!U.startAtSponsor && node >= 0) node = sponsor[node];
+      const amt = bv * P.bvValue * U.rate / 100;
+      let paidLevels = 0, steps = 0;
+      while (node >= 0 && paidLevels < U.levels && steps < 200) {
+        steps++;
+        if (isActive(node, t)) { credit(node, 'unilevel', amt); paidLevels++; }
+        else if (!U.compression) { M.breakage += amt; paidLevels++; }
+        node = sponsor[node];
+      }
+      if (!U.compression && paidLevels < U.levels) {
+        // уровни выше корня — не существуют, это не breakage, а просто нет получателя
+      }
+    }
+
+    function purchase(i, kind, price, bv, t) {
+      M.turnover += price;
+      M.turnoverBV += bv;
+      M.byStream[kind] += price;
+      cost[i] += price;
+      const s = sponsor[i];
+      if (kind === 'package' || (kind === 'upgrade' && P.direct.onUpgrade)) {
+        if (s >= 0) {
+          const amt = bv * P.bvValue * P.direct.byPackage[pkg[s]] / 100;
+          if (!P.direct.requiresActive || isActive(s, t)) credit(s, 'direct', amt);
+          else M.breakage += amt;
+        }
+      }
+      const U = P.unilevel;
+      if ((kind === 'package' && U.onPackage) || (kind === 'upgrade' && U.onUpgrade) || (kind === 'activation' && U.onActivation)) {
+        unilevel(i, bv, t);
+      }
+    }
+
+    function addMember(s, isBuilder, t) {
+      const i = N++;
+      sponsor.push(s); builder.push(isBuilder); joinM.push(t);
+      const p = pick(G.mix, R);
+      pkg.push(p);
+      activeM.push(P.activation.joinMonthCounts ? t : -1);
+      streak.push(0); churned.push(false);
+      spent.push(0); qualified.push(false); qualCount.push(0); rank.push(0);
+      cnt.push(new Int32Array(nR + 1));
+      earn.push(0); cost.push(0); monthEarn.push(0); monthBase.push(0);
+      M.joined++;
+      purchase(i, 'package', P.packages[p].price, P.packages[p].bv, t);
+      if (P.rank.packageCounts) addSpent(i, P.packages[p].price, t);
+      return i;
+    }
+
+    for (let t = 0; t < G.months; t++) {
+      M = {
+        month: t + 1, turnover: 0, turnoverBV: 0, byStream: { package: 0, upgrade: 0, activation: 0 },
+        byType: {}, breakage: 0, joined: 0, active: 0, rankUps: 0, capFactor: 1, poolPointValue: 0, poolPoints: 0,
+      };
+      TYPES.forEach(k => (M.byType[k] = 0));
+      touched = [];
+
+      if (t === 0) for (let k = 0; k < G.seedLeaders; k++) addMember(-1, true, 0);
+
+      const existing = N;
+      // 1. activation
+      for (let i = 0; i < existing; i++) {
+        if (churned[i] || joinM[i] === t) continue;
+        const pa = builder[i] ? G.activeBuilder : G.activeRegular;
+        if (R() < pa) {
+          activeM[i] = t; streak[i] = 0;
+          purchase(i, 'activation', P.activation.price, P.activation.bv, t);
+          addSpent(i, P.activation.price, t);
+          evaluateRank(i, t);
+        } else if (++streak[i] >= G.churnAfter) churned[i] = true;
+      }
+      // 2. upgrades
+      const last = P.packages.length - 1;
+      for (let i = 0; i < existing; i++) {
+        if (!isActive(i, t) || pkg[i] >= last || R() >= G.upgradeProb) continue;
+        const to = pkg[i] === 0 && last >= 2 && R() < G.jumpShare ? 2 : pkg[i] + 1;
+        const from = pkg[i];
+        pkg[i] = to;
+        const diff = P.packages[to].price - P.packages[from].price;
+        purchase(i, 'upgrade', diff, P.packages[to].bv - P.packages[from].bv, t);
+        if (P.rank.packageCounts) addSpent(i, diff, t);
+      }
+      // 3. recruitment
+      const sat = Math.max(0, 1 - N / G.marketCap);
+      for (let i = 0; i < existing; i++) {
+        if (!isActive(i, t)) continue;
+        const lam = (builder[i] ? G.lambdaBuilder : G.lambdaRegular) * Math.pow(G.lambdaDecay, t - joinM[i]) * sat;
+        const k = poisson(lam, R);
+        for (let j = 0; j < k; j++) addMember(i, R() < G.builderShare, t);
+      }
+      // 4. matching
+      const mt = P.matching;
+      for (const i of touched.slice()) {
+        const base = monthBase[i];
+        if (base <= 0) continue;
+        let node = sponsor[i];
+        for (let d = 0; d < mt.depth && node >= 0; d++) {
+          let rate = mt.byPackage[pkg[node]];
+          if (mt.minWithInvitee) rate = Math.min(rate, mt.byPackage[pkg[i]]);
+          const amt = base * rate / 100;
+          if (!mt.requiresActive || isActive(node, t)) credit(node, 'matching', amt);
+          else M.breakage += amt;
+          node = sponsor[node];
+        }
+      }
+      // 5. leadership pool
+      const fund = (P.pool.base === 'bv' ? M.turnoverBV * P.bvValue : M.turnover) * P.pool.pct / 100;
+      let pts = 0;
+      const members = [];
+      for (let i = 0; i < N; i++) {
+        if (rank[i] >= P.pool.minRank && (!P.pool.requiresActive || isActive(i, t))) {
+          const p = P.rank.ranks[rank[i] - 1].points;
+          if (p > 0) { pts += p; members.push(i); }
+        }
+      }
+      if (pts > 0) {
+        const v = fund / pts;
+        M.poolPointValue = v; M.poolPoints = pts;
+        for (const i of members) credit(i, 'pool', P.rank.ranks[rank[i] - 1].points * v);
+      } else M.poolUnpaid = fund;
+
+      // 6. cap
+      let payout = TYPES.reduce((a, k) => a + M.byType[k], 0);
+      if (P.cap.enabled && M.turnover > 0 && payout > M.turnover * P.cap.pct / 100) {
+        const f = (M.turnover * P.cap.pct / 100) / payout;
+        M.capFactor = f;
+        TYPES.forEach(k => (M.byType[k] *= f));
+        payout *= f;
+      }
+      for (const i of touched) { earn[i] += monthEarn[i] * M.capFactor; monthEarn[i] = 0; monthBase[i] = 0; }
+
+      M.payout = payout;
+      M.members = N;
+      for (let i = 0; i < N; i++) if (isActive(i, t)) M.active++;
+      M.rankCounts = new Array(nR + 1).fill(0);
+      for (let i = 0; i < N; i++) M.rankCounts[rank[i]]++;
+      months.push(M);
+
+      totals.turnover += M.turnover;
+      totals.breakage += M.breakage;
+      TYPES.forEach(k => (totals.byType[k] += M.byType[k]));
+      Object.keys(totals.byStream).forEach(k => (totals.byStream[k] += M.byStream[k]));
+    }
+
+    // summary
+    const payout = TYPES.reduce((a, k) => a + totals.byType[k], 0);
+    const net = totals.turnover / (1 + E.vatPct / 100);
+    const cogs = net * E.cogsPct / 100;
+    const acq = totals.turnover * E.acquiringPct / 100;
+    const logi = net * E.logisticsPct / 100;
+    const margin = net - cogs - acq - logi - payout;
+
+    const earners = earn.slice().sort((a, b) => b - a);
+    const top1n = Math.max(1, Math.round(N * 0.01));
+    const top1 = earners.slice(0, top1n).reduce((a, b) => a + b, 0);
+    let profitable = 0, zero = 0;
+    for (let i = 0; i < N; i++) { if (earn[i] > cost[i]) profitable++; if (earn[i] === 0) zero++; }
+    const q = p => earners[Math.min(N - 1, Math.floor((1 - p) * N))] || 0;
+
+    const byRank = [];
+    for (let r = 0; r <= nR; r++) byRank.push({ n: 0, earn: 0, cost: 0 });
+    for (let i = 0; i < N; i++) { const b = byRank[rank[i]]; b.n++; b.earn += earn[i]; b.cost += cost[i]; }
+
+    return {
+      months, totals, payout, payoutPct: totals.turnover ? payout / totals.turnover * 100 : 0,
+      econ: { net, cogs, acq, logi, margin, marginPct: totals.turnover ? margin / totals.turnover * 100 : 0 },
+      members: N, active: months.length ? months[months.length - 1].active : 0,
+      dist: {
+        profitableShare: N ? profitable / N : 0, zeroShare: N ? zero / N : 0,
+        top1Share: payout ? top1 / payout : 0, median: q(0.5), p90: q(0.9), p99: q(0.99),
+      },
+      byRank,
+    };
+  }
+
+  // Теоретический максимум с одной покупки (без рангов), % от цены
+  function perPurchase(plan, price, bv) {
+    const k = bv * plan.bvValue / price;
+    const dMax = Math.max(...plan.direct.byPackage) * k;
+    const ul = plan.unilevel.onPackage ? plan.unilevel.levels * plan.unilevel.rate * k : 0;
+    const m = Math.max(...plan.matching.byPackage) / 100 * plan.matching.depth;
+    const match = ((plan.matching.onDirect ? dMax : 0) + (plan.matching.onUnilevel ? ul : 0)) * m;
+    return { direct: dMax, unilevel: ul, matching: match, pool: plan.pool.pct, total: dMax + ul + match + plan.pool.pct };
+  }
+
+  g.MLMSim = { run, perPurchase, DEFAULTS, TYPES };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+const S = window.MLMSim;
+const clone = o => JSON.parse(JSON.stringify(o));
+const PRESETS = {
+  base: {},
+  strong: { growth: { lambdaBuilder: 1.2, builderShare: 0.15, marketCap: 200000 } },
+  mature: { growth: { lambdaBuilder: 1.5, builderShare: 0.2, marketCap: 60000, months: 60 } },
+};
+let cfg = clone(S.DEFAULTS);
+let target = 45;
+
+const TYPE_LABEL = { direct:'Direct (реферальный)', unilevel:'Unilevel 2%', matching:'Matching', rank:'Премии за ранги', pool:'Leadership Pool' };
+const TYPE_COLOR = { direct:'var(--s1)', unilevel:'var(--s2)', matching:'var(--s3)', rank:'var(--s4)', pool:'var(--s5)' };
+
+const get = (o,p) => p.split('.').reduce((a,k)=>a[k], o);
+const set = (o,p,v) => { const ks=p.split('.'); const last=ks.pop(); ks.reduce((a,k)=>a[k],o)[last]=v; };
+
+// [path, label, kind, hint]  kind: n=number, p=percent(0..1 shown as %), b=bool, s:opt1|opt2
+const GROUPS = [
+  ['Пакеты и BV', true, [
+    ['plan.packages.0.price','START, ₸','n'], ['plan.packages.0.bv','START, BV','n'],
+    ['plan.packages.1.price','BUSINESS, ₸','n'], ['plan.packages.1.bv','BUSINESS, BV','n'],
+    ['plan.packages.2.price','PREMIUM, ₸','n'], ['plan.packages.2.bv','PREMIUM, BV','n'],
+    ['plan.bvValue','Стоимость 1 BV, ₸','n','Бонус = BV × ставка × стоимость BV'],
+  ]],
+  ['Ежемесячная активация', true, [
+    ['plan.activation.price','Сумма активации, ₸','n','Обязательная покупка товара в месяц'],
+    ['plan.activation.bv','BV активации','n'],
+    ['plan.activation.joinMonthCounts','Месяц покупки пакета засчитан','b'],
+  ]],
+  ['Direct (реферальный)', false, [
+    ['plan.direct.byPackage.0','Мой пакет START, %','n'],
+    ['plan.direct.byPackage.1','Мой пакет BUSINESS, %','n'],
+    ['plan.direct.byPackage.2','Мой пакет PREMIUM, %','n'],
+    ['plan.direct.onUpgrade','Платить с апгрейда ЛП (с разницы)','b'],
+    ['plan.direct.requiresActive','Только активному спонсору','b'],
+  ]],
+  ['Unilevel', false, [
+    ['plan.unilevel.levels','Уровней','n'], ['plan.unilevel.rate','Ставка на уровень, %','n'],
+    ['plan.unilevel.startAtSponsor','1-й уровень = сам спонсор','b','Выкл: начинается со спонсора спонсора (как на картинке)'],
+    ['plan.unilevel.compression','Компрессия (пропуск неактивных)','b'],
+    ['plan.unilevel.onPackage','С пакетов','b'], ['plan.unilevel.onUpgrade','С апгрейдов','b'], ['plan.unilevel.onActivation','С активаций','b'],
+  ]],
+  ['Matching', false, [
+    ['plan.matching.byPackage.0','Мой пакет START, %','n'], ['plan.matching.byPackage.1','Мой пакет BUSINESS, %','n'], ['plan.matching.byPackage.2','Мой пакет PREMIUM, %','n'],
+    ['plan.matching.minWithInvitee','Не выше ставки по пакету ЛП','b','Вариант «зависит и от пакета ЛП»'],
+    ['plan.matching.depth','Глубина, поколений','n'],
+    ['plan.matching.onDirect','От Direct партнёра','b'], ['plan.matching.onUnilevel','От Unilevel партнёра','b'],
+  ]],
+  ['Ранги', false, [
+    ['plan.rank.legs','Нужно лично приглашённых','n'],
+    ['plan.rank.qualifyMult','Покупки ЛП для Консультанта, × цена его пакета','n'],
+    ['plan.rank.packageCounts','Пакет ЛП идёт в зачёт','b'],
+    ['plan.rank.onActivationOnly','Ранг пересчитывается только при активации','b'],
+    ['plan.rank.requiresActive','Ранг растёт только в активный месяц','b'],
+    ['__ranks'],
+  ]],
+  ['Leadership Pool', false, [
+    ['plan.pool.pct','Фонд, % оборота','n'],
+    ['plan.pool.minRank','С ранга №','n'],
+    ['plan.pool.requiresActive','Только активным','b'],
+  ]],
+  ['Потолок и экономика', false, [
+    ['__target','Целевой потолок выплат, %','t'],
+    ['plan.cap.enabled','Жёсткий потолок (срезать пропорционально)','b'],
+    ['plan.cap.pct','Потолок, % оборота','n'],
+    ['econ.vatPct','НДС в цене, %','n','Проверить ставку у бухгалтера'],
+    ['econ.cogsPct','Себестоимость, % от цены без НДС','n'],
+    ['econ.acquiringPct','Эквайринг, %','n'], ['econ.logisticsPct','Логистика и склад, %','n'],
+  ]],
+  ['Допущения о росте', false, [
+    ['growth.months','Месяцев','n'], ['growth.seedLeaders','Стартовых лидеров','n'],
+    ['growth.builderShare','Доля «строителей» среди новых','p'],
+    ['growth.lambdaBuilder','Строитель: приглашений в мес','n'], ['growth.lambdaRegular','Обычный: приглашений в мес','n'],
+    ['growth.lambdaDecay','Затухание приглашений в мес','n','0.97 = −3% в месяц со стажем'],
+    ['growth.marketCap','Ёмкость рынка, чел.','n'],
+    ['growth.mix.0','Доля START','p'], ['growth.mix.1','Доля BUSINESS','p'], ['growth.mix.2','Доля PREMIUM','p'],
+    ['growth.activeBuilder','Строитель: вероятность активации','p'], ['growth.activeRegular','Обычный: вероятность активации','p'],
+    ['growth.churnAfter','Выбывает после N пропусков подряд','n'],
+    ['growth.upgradeProb','Вероятность апгрейда в мес','p'], ['growth.jumpShare','Апгрейд сразу START→PREMIUM','p'],
+    ['growth.seed','Seed случайности','n'],
+  ]],
+];
+
+const fmt = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+const money = v => { if (Math.abs(v)<0.5) v=0; const a=Math.abs(v); if(a>=1e9) return (v/1e9).toFixed(2).replace('.',',')+' млрд ₸'; if(a>=1e6) return (v/1e6).toFixed(1).replace('.',',')+' млн ₸'; return fmt.format(Math.round(v))+' ₸'; };
+const pct = (v,d=1) => v.toFixed(d).replace('.',',')+'%';
+
+// ---------- описания параметров ----------
+const PKG = ['START','BUSINESS','PREMIUM'];
+const DESC = {
+  'plan.packages.*.price': p => `Цена пакета ${p} с НДС. Входит в оборот компании и в затраты партнёра. Для апгрейда доплачивается разница цен.`,
+  'plan.packages.*.bv': p => `Бонусные баллы пакета ${p}. От них, а не от цены, считаются Direct, Unilevel и Matching. Для апгрейда берётся разница BV.`,
+  'plan.bvValue': 'Сколько тенге стоит 1 BV при расчёте бонуса. Одна ручка масштабирует все процентные бонусы сразу. При цена/BV = стоимости BV процент от BV равен проценту от цены.',
+  'plan.activation.price': 'Обязательная покупка товара в месяц. Кто её не сделал — неактивен: не получает Unilevel, Matching и Pool, его Direct сгорает (если включено «Только активному»), ранг не растёт.',
+  'plan.activation.bv': 'BV активации — база для Unilevel с активаций. Если BV ниже цены/стоимость BV, выплаты с активаций меньше процентов плана.',
+  'plan.activation.joinMonthCounts': 'Вкл: в месяц покупки пакета партнёр активен без отдельной активации. Выкл: пакет не заменяет активацию.',
+  'plan.direct.byPackage.*': p => `Ставка Direct спонсора, у которого сейчас пакет ${p}: % от BV пакета (или разницы при апгрейде) каждого ЛП. Число ЛП не ограничено. Ставка меняется только после апгрейда самого спонсора.`,
+  'plan.direct.onUpgrade': 'Вкл: при апгрейде ЛП спонсор получает Direct с BV разницы по своей текущей ставке. Прыжок START→PREMIUM — один апгрейд.',
+  'plan.direct.requiresActive': 'Вкл: если спонсор в этом месяце неактивен, Direct не платится и остаётся компании («сгорает»).',
+  'plan.unilevel.levels': 'Сколько уровней вверх получают Unilevel с каждой покупки.',
+  'plan.unilevel.rate': 'Процент от BV покупки на каждый уровень.',
+  'plan.unilevel.startAtSponsor': 'Выкл (как на картинке маркетинга): уровни начинаются со спонсора спонсора, сам спонсор получает только Direct. Вкл: 1-й уровень — сам спонсор.',
+  'plan.unilevel.compression': 'Выкл: доля неактивного уровня сгорает. Вкл: неактивные пропускаются, выплата уходит следующему активному выше, пока не наберётся нужное число уровней.',
+  'plan.unilevel.onPackage': 'Платить Unilevel с покупок пакетов.',
+  'plan.unilevel.onUpgrade': 'Платить Unilevel с BV разницы при апгрейде.',
+  'plan.unilevel.onActivation': 'Платить Unilevel с ежемесячных активаций. По решению бизнеса — выкл: Unilevel только с регистрации и апгрейдов.',
+  'plan.matching.byPackage.*': p => `Ставка Matching для получателя с пакетом ${p}: процент от Direct + Unilevel, которые его ЛП заработали за месяц.`,
+  'plan.matching.minWithInvitee': 'Вкл: ставка = меньшая из двух — по моему пакету и по пакету ЛП. Выкл: только по моему пакету. Проверочный вариант, пока правило не уточнено.',
+  'plan.matching.depth': 'Сколько поколений вверх получают Matching. 1 — только прямой спонсор. Ставка на каждом поколении — по пакету получателя.',
+  'plan.matching.onDirect': 'Включать Direct ЛП в базу Matching.',
+  'plan.matching.onUnilevel': 'Включать Unilevel ЛП в базу Matching.',
+  'plan.rank.legs': 'Сколько лично приглашённых нужного уровня нужно для каждого ранга.',
+  'plan.rank.qualifyMult': 'Консультант: каждый из ЛП должен купить товара на сумму ≥ цены своего пакета × этот множитель. При 1 и пакете в зачёте ЛП квалифицирован сразу после покупки пакета.',
+  'plan.rank.packageCounts': 'Вкл (решение бизнеса): покупка пакета и апгрейды ЛП идут в зачёт его покупок. Выкл: считаются только активации после пакета.',
+  'plan.rank.onActivationOnly': 'Вкл (решение бизнеса): ранг пересчитывается только в момент своей активации. Выросли ЛП — ранг поднимется при следующей активации.',
+  'plan.rank.requiresActive': 'Вкл: ранг повышается только в месяц, когда партнёр активен. Ранг не теряется.',
+  'plan.pool.pct': 'Доля оборота компании за месяц, которая идёт в фонд Leadership Pool.',
+  'plan.pool.minRank': 'Номер ранга, с которого партнёр участвует в пуле (8 = Золотой директор). Доля — по баллам ранга из таблицы.',
+  'plan.pool.requiresActive': 'Вкл: в делёжке фонда участвуют только активные в этом месяце.',
+  '__target': 'Ориентир для цветных меток и пунктирной линии на графике. На расчёт не влияет.',
+  'plan.cap.enabled': 'Вкл: если выплаты месяца выше потолка, все выплаты этого месяца пропорционально уменьшаются до потолка.',
+  'plan.cap.pct': 'Жёсткий потолок выплат, % оборота месяца. Работает только при включённом флаге.',
+  'econ.vatPct': 'НДС внутри цены. Выручка без НДС = оборот / (1 + НДС).',
+  'econ.cogsPct': 'Себестоимость товара, % от выручки без НДС.',
+  'econ.acquiringPct': 'Комиссия платёжного провайдера, % от оборота с НДС.',
+  'econ.logisticsPct': 'Склад, доставка, упаковка, % от выручки без НДС.',
+  'growth.months': 'Длина симуляции в месяцах.',
+  'growth.seedLeaders': 'Сколько лидеров стартуют в месяц 1 без спонсора. Все они — «строители».',
+  'growth.builderShare': 'Доля новых партнёров, которые активно приглашают. Остальные в основном покупают.',
+  'growth.lambdaBuilder': 'Среднее число новых ЛП в месяц у активного «строителя» (распределение Пуассона).',
+  'growth.lambdaRegular': 'Среднее число новых ЛП в месяц у обычного активного партнёра.',
+  'growth.lambdaDecay': 'Приглашения падают со стажем: λ × затухание^(месяцев в сети). 1 — без затухания.',
+  'growth.marketCap': 'Ёмкость рынка. Чем ближе размер сети к ней, тем реже приглашения: λ × (1 − N / ёмкость).',
+  'growth.mix.*': p => `Доля новых партнёров, которые выбирают пакет ${p}. Доли нормируются к сумме.`,
+  'growth.activeBuilder': 'Вероятность, что «строитель» сделает активацию в данном месяце.',
+  'growth.activeRegular': 'Вероятность, что обычный партнёр сделает активацию в данном месяце.',
+  'growth.churnAfter': 'Сколько месяцев подряд без активации — и партнёр выбывает навсегда (остаётся в дереве, но больше не покупает).',
+  'growth.upgradeProb': 'Вероятность в месяц, что активный партнёр не на PREMIUM сделает апгрейд.',
+  'growth.jumpShare': 'Доля апгрейдов с START, которые идут сразу на PREMIUM.',
+  'growth.seed': 'Зерно генератора случайных чисел. Тот же seed — тот же прогон. Меняйте, чтобы проверить устойчивость вывода.',
+};
+function describe(path){
+  if (DESC[path]) return typeof DESC[path]==='function' ? DESC[path]() : DESC[path];
+  const m = path.match(/^(.*)\.(\d+)(\.[a-z]+)?$/);
+  if (m){ const k = m[1]+'.*'+(m[3]||''); if (DESC[k]) return DESC[k](PKG[+m[2]]); }
+  return '';
+}
+const CFG_NOTE = p => p.startsWith('plan.') ? `<code>${p.slice(5)}</code>` : p==='__target' ? '<span class="muted">только в модели</span>' : `<code>${p}</code> <span class="muted">· модель</span>`;
+let showDesc = false;
+try { showDesc = localStorage.getItem('showDesc')==='1'; } catch(e){}
+
+function buildForm(){
+  const root = document.getElementById('form');
+  root.innerHTML = '';
+  let idn = 0;
+  for (const [title, open, fields] of GROUPS){
+    const d = document.createElement('details'); if (open) d.open = true;
+    d.innerHTML = `<summary>${title}</summary>`;
+    const box = document.createElement('div'); box.className='fields';
+    for (const [path,label,kind,hint] of fields){
+      if (path === '__ranks'){ box.appendChild(rankTable()); continue; }
+      const id = 'p_'+(idn++);
+      const row = document.createElement('div'); row.className='f';
+      const val = path==='__target' ? target : get(cfg,path);
+      let input;
+      if (kind==='b') input = `<input type="checkbox" id="${id}" ${val?'checked':''}>`;
+      else if (kind==='p') input = `<input type="number" id="${id}" step="1" value="${+(val*100).toFixed(2)}">`;
+      else input = `<input type="number" id="${id}" step="any" value="${val}">`;
+      const desc = describe(path);
+      row.innerHTML = `<label for="${id}">${label}${kind==='p'?', %':''}${hint?`<small>${hint}</small>`:''}</label>${input}` + (desc?`<div class="desc" ${showDesc?'':'hidden'}>${desc}</div>`:'');
+      if (desc) row.querySelector('label').title = desc.replace(/<[^>]+>/g,'');
+      const el = row.querySelector('input');
+      el.addEventListener('change', () => {
+        let v = kind==='b' ? el.checked : parseFloat(el.value);
+        if (kind!=='b' && !isFinite(v)) return;
+        if (kind==='p') v = v/100;
+        if (path==='__target') target = v; else set(cfg,path,v);
+        clearPreset(); schedule();
+      });
+      box.appendChild(row);
+    }
+    d.appendChild(box); root.appendChild(d);
+  }
+}
+function rankTable(){
+  const wrap = document.createElement('div');
+  const rows = cfg.plan.rank.ranks.map((r,i)=>`<tr><td>${i+1}. ${r.name}</td><td><input id="rb_${i}" type="number" value="${r.bonus}" aria-label="Премия ${r.name}"></td><td style="width:52px"><input id="rp_${i}" type="number" value="${r.points}" aria-label="Баллы пула ${r.name}"></td></tr>`).join('');
+  wrap.innerHTML = `<div class="grp-title">Премии и баллы пула</div><table class="ranks-in"><tr><th>Ранг</th><th>Премия, ₸</th><th>Баллы</th></tr>${rows}</table>`;
+  wrap.querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>{
+    const [k,i] = el.id.split('_'); const v = parseFloat(el.value); if(!isFinite(v)) return;
+    cfg.plan.rank.ranks[+i][k==='rb'?'bonus':'points'] = v; clearPreset(); schedule();
+  }));
+  return wrap;
+}
+function clearPreset(){ document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed','false')); }
+
+let timer=null;
+function schedule(){ clearTimeout(timer); document.getElementById('status').textContent='считаю…'; timer=setTimeout(compute,250); }
+
+function compute(){
+  const t0 = performance.now();
+  let r;
+  try { r = S.run(cfg); } catch(e){ document.getElementById('status').textContent='ошибка: '+e.message; return; }
+  document.getElementById('status').textContent = `${Math.round(performance.now()-t0)} мс`;
+  render(r);
+}
+
+function status(v, goodMax, warnMax){ return v<=goodMax?'good':v<=warnMax?'warn':'bad'; }
+
+function render(r){
+  const T = r.totals, TO = T.turnover || 1;
+  const last12 = r.months.slice(-12), l12t = last12.reduce((a,m)=>a+m.turnover,0), l12p = last12.reduce((a,m)=>a+m.payout,0);
+  const peak = Math.max(0,...r.months.filter(m=>m.turnover>0).map(m=>m.payout/m.turnover*100));
+  const pSt = status(r.payoutPct, target-5, target);
+  const pkSt = status(peak, target, target+10);
+  const mSt = r.econ.marginPct>=15?'good':r.econ.marginPct>=5?'warn':'bad';
+  const lbl = {good:'в норме',warn:'на грани',bad:'выше порога'};
+  document.getElementById('kpis').innerHTML = [
+    ['Выплаты за период', pct(r.payoutPct), `<span class="pill ${pSt}">${lbl[pSt]} · цель ≤ ${target}%</span>`],
+    ['Пик за месяц', pct(peak), `<span class="pill ${pkSt}">${pkSt==='good'?'в пределах цели':'месяц выше цели'}</span>`],
+    ['Выплаты, последние 12 мес', pct(l12t? l12p/l12t*100:0), '<span class="h">зрелая часть сети</span>'],
+    ['Маржа компании', pct(r.econ.marginPct), `<span class="pill ${mSt}">${mSt==='good'?'≥ 15%':mSt==='warn'?'5–15%':'< 5%'}</span>`],
+    ['Оборот за период', money(T.turnover), `<span class="h">${fmt.format(r.members)} партнёров · ${fmt.format(r.active)} активны</span>`],
+    ['Заработали больше, чем потратили', pct(r.dist.profitableShare*100), `<span class="h">без дохода вообще: ${pct(r.dist.zeroShare*100,0)}</span>`],
+  ].map(([l,v,h])=>`<div class="kpi"><span class="l">${l}</span><span class="v">${v}</span>${h}</div>`).join('');
+
+  // legend
+  document.getElementById('lg1').innerHTML = S.TYPES.map(k=>`<span><i style="background:${TYPE_COLOR[k]}"></i>${TYPE_LABEL[k]}</span>`).join('') + `<span><i style="background:none;border-top:2px dashed var(--ink-2);height:0;width:14px;border-radius:0"></i>Цель ${target}%</span>`;
+  stackChart(r);
+  document.getElementById('lg2').innerHTML = `<span><i style="background:var(--s1)"></i>Всего партнёров</span><span><i style="background:var(--s3)"></i>Активных</span>`;
+  lineChart(r);
+
+  // waterfall
+  const E = r.econ, rows = [
+    ['Оборот с НДС', T.turnover, 1],
+    ['− НДС', -(T.turnover-E.net)],
+    ['− Себестоимость товара', -E.cogs],
+    ['− Эквайринг', -E.acq],
+    ['− Логистика и склад', -E.logi],
+    ...S.TYPES.map(k=>['− '+TYPE_LABEL[k], -T.byType[k]]),
+  ];
+  document.getElementById('waterfall').innerHTML = `<tr><th>Статья</th><th>Сумма</th><th>% оборота</th></tr>` +
+    rows.map(([n,v])=>`<tr><td>${n}</td><td>${money(v)}</td><td>${pct(v/TO*100)}</td></tr>`).join('') +
+    `<tr class="total"><td>Остаётся компании</td><td>${money(E.margin)}</td><td>${pct(E.margin/TO*100)}</td></tr>` +
+    `<tr><td class="muted">Не выплачено из-за неактивности</td><td class="muted">${money(T.breakage)}</td><td class="muted">${pct(T.breakage/TO*100)}</td></tr>` +
+    `<tr><td class="muted">Структура оборота: пакеты / апгрейды / активации</td><td class="muted" colspan="2">${['package','upgrade','activation'].map(k=>pct(T.byStream[k]/TO*100,0)).join(' / ')}</td></tr>`;
+
+  // per purchase
+  const pp = cfg.plan.packages.map(p=>({p, v:S.perPurchase(cfg.plan,p.price,p.bv)}));
+  const U = cfg.plan.unilevel, M = cfg.plan.matching, A = cfg.plan.activation;
+  const actDirect = 0, actUL = U.onActivation ? U.levels*U.rate*A.bv*cfg.plan.bvValue/A.price : 0;
+  const actM = (M.onUnilevel?actUL:0)*Math.max(...M.byPackage)/100*M.depth;
+  document.getElementById('perPurchase').innerHTML = `<tr><th>Покупка</th><th>Direct</th><th>Unilevel</th><th>Matching</th><th>Pool</th><th>Итого</th></tr>` +
+    pp.map(({p,v})=>`<tr><td>${p.code} · ${fmt.format(p.price)} ₸</td><td>${pct(v.direct,0)}</td><td>${pct(v.unilevel,0)}</td><td>${pct(v.matching)}</td><td>${pct(v.pool,0)}</td><td><b>${pct(v.total)}</b></td></tr>`).join('') +
+    `<tr><td>Активация · ${fmt.format(cfg.plan.activation.price)} ₸</td><td>${pct(actDirect,0)}</td><td>${pct(actUL,0)}</td><td>${pct(actM)}</td><td>${pct(cfg.plan.pool.pct,0)}</td><td><b>${pct(actUL+actM+cfg.plan.pool.pct)}</b></td></tr>`;
+
+  // distribution
+  const d = r.dist;
+  document.getElementById('dist').innerHTML = `<tr><th>Показатель</th><th>Значение</th></tr>` + [
+    ['Медианный доход за период', money(d.median)],
+    ['90-й перцентиль', money(d.p90)],
+    ['99-й перцентиль', money(d.p99)],
+    ['Доля топ-1% в выплатах', pct(d.top1Share*100)],
+    ['Заработали больше затрат', pct(d.profitableShare*100)],
+    ['Не получили ничего', pct(d.zeroShare*100)],
+  ].map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+
+  // ranks
+  const rk = cfg.plan.rank.ranks;
+  document.getElementById('ranks').innerHTML = `<tr><th>Ранг</th><th>Партнёров</th><th>Ср. доход</th><th>Ср. затраты</th><th>Доход − затраты</th></tr>` +
+    r.byRank.map((b,i)=>b.n?`<tr><td>${i===0?'Без ранга (Партнёр)':i+'. '+rk[i-1].name}</td><td>${fmt.format(b.n)}</td><td>${money(b.earn/b.n)}</td><td>${money(b.cost/b.n)}</td><td>${money((b.earn-b.cost)/b.n)}</td></tr>`:'').join('') +
+    (r.byRank.slice(1).some((b,i)=>!b.n)?`<tr><td class="muted" colspan="5">Не достигнуты: ${r.byRank.map((b,i)=>i&&!b.n?rk[i-1].name:null).filter(Boolean).join(', ')}</td></tr>`:'');
+
+  findings(r, peak);
+  renderGlossary();
+  renderFormulas(r);
+  lastRun = { r, peak };
+  const out = document.getElementById('cfgOut');
+  if (document.activeElement !== out) out.value = JSON.stringify(exportObject(), null, 2);
+  persist();
+}
+
+function renderGlossary(){
+  const showVal = (path, kind) => {
+    if (path==='__target') return target+'%';
+    const v = get(cfg, path);
+    if (kind==='b') return v ? 'вкл' : 'выкл';
+    if (kind==='p') return pct(v*100, 0);
+    return typeof v==='number' ? v.toLocaleString('ru-RU',{maximumFractionDigits:3}) : v;
+  };
+  let html = '';
+  for (const [title,,fields] of GROUPS){
+    const rows = fields.filter(f=>f[0]!=='__ranks').map(([path,label,kind])=>
+      `<tr><td>${label}${kind==='p'?', %':''}</td><td>${showVal(path,kind)}</td><td class="wrap">${describe(path)}<br>${CFG_NOTE(path)}</td></tr>`).join('');
+    html += `<h3>${title}</h3><div class="tbl"><table class="t"><tr><th>Параметр</th><th>Сейчас</th><th style="text-align:left">Что делает · ключ в config_json</th></tr>${rows}</table></div>`;
+    if (fields.some(f=>f[0]==='__ranks')){
+      const rk = cfg.plan.rank.ranks;
+      html += `<h3>Ранги: премии и баллы пула</h3><div class="tbl"><table class="t"><tr><th>Ранг</th><th>Условие</th><th>Премия</th><th>Баллы пула</th></tr>` +
+        rk.map((r,i)=>`<tr><td>${i+1}. ${r.name}</td><td class="wrap">${i===0?`${cfg.plan.rank.legs} ЛП, у каждого покупки товара ≥ ${cfg.plan.rank.qualifyMult} × цена его пакета`:`${cfg.plan.rank.legs} ЛП с рангом ≥ «${rk[i-1].name}»`}</td><td>${r.bonus?money(r.bonus):'<span class="muted">нет</span>'}</td><td>${r.points||'<span class="muted">—</span>'}</td></tr>`).join('') +
+        `</table></div><p class="note" style="margin-top:6px"><code>rank.ranks[i].bonus</code>, <code>rank.ranks[i].points</code>. Ранг не теряется. Если одним событием пройдено несколько рангов, премия платится за каждый.</p>`;
+    }
+  }
+  document.getElementById('panelGl').innerHTML = html;
+}
+
+function renderFormulas(r){
+  const P = cfg.plan, bvV = P.bvValue, pk = P.packages, A = P.activation, U = P.unilevel, M = P.matching;
+  const n = v => fmt.format(Math.round(v));
+  const d = P.direct.byPackage;
+  const s = pk[0], top = pk[pk.length-1];
+  const upBV = top.bv - s.bv;
+  const ulStart = s.bv*bvV*U.rate/100, ulUp = upBV*bvV*U.rate/100;
+  const lastM = r.months[r.months.length-1] || {turnover:0,poolPoints:0,poolPointValue:0};
+  const fund = (P.pool.base==='bv' ? lastM.turnoverBV*bvV : lastM.turnover)*P.pool.pct/100;
+  const qMonths = pk.map(p=>{ const need = Math.max(0, p.price*P.rank.qualifyMult - (P.rank.packageCounts?p.price:0)); return `${p.code} — ${need<=0?'сразу после пакета':Math.ceil(need/A.price)+' мес активаций'}`; }).join(', ');
+  const E = cfg.econ;
+  const blocks = [
+    ['Единица расчёта: BV',
+     'Процентные бонусы считаются от баллов покупки, а не от её цены. Стоимость 1 BV переводит баллы в тенге.',
+     `бонус, ₸ = BV × ставка% × стоимость_BV
+<span class="c">апгрейд: BV = BV(новый пакет) − BV(старый)</span>`,
+     `${s.code}: ${s.bv} BV × ${d[0]}% × ${bvV} ₸ = <b>${n(s.bv*d[0]/100*bvV)} ₸</b>. Цена/BV у ${s.code} = ${n(s.price/s.bv)} ₸.`],
+    ['Direct (реферальный) — при регистрации и апгрейде ЛП',
+     'Платится спонсору, когда ЛП покупает пакет или делает апгрейд. Ставка зависит от текущего пакета самого спонсора, число ЛП не ограничено. С активаций Direct не платится.',
+     `ставка = ${d.map((x,i)=>`${x}% при моём ${pk[i].code}`).join(', ')}
+Direct         = BV_пакета_ЛП × ставка(мой пакет) × стоимость_BV
+Direct_апгрейд = (BV_нов − BV_стар) × ставка(мой пакет) × стоимость_BV   <span class="c">${P.direct.onUpgrade?'вкл':'выкл'}</span>
+<span class="c">мой апгрейд меняет ставку для следующих начислений; прошлые не пересчитываются</span>
+<span class="c">спонсор неактивен → ${P.direct.requiresActive?'сгорает':'всё равно платится'}</span>`,
+     `ЛП купил ${s.code}: при моём ${pk[0].code} — <b>${n(s.bv*d[0]/100*bvV)} ₸</b>, при моём ${top.code} — <b>${n(s.bv*d[d.length-1]/100*bvV)} ₸</b>. ЛП сделал апгрейд ${s.code}→${top.code} (${upBV} BV) при моём ${pk[1].code}: <b>${n(upBV*d[1]/100*bvV)} ₸</b>.`],
+    ['Unilevel — 2% на 10 уровней над спонсором',
+     `Каждый из ${U.levels} уровней получает одинаковый процент, если активен в этом месяце. Отсчёт — ${U.startAtSponsor?'с личного спонсора':'со спонсора спонсора (личный спонсор получает Direct)'}.`,
+     `для ℓ = 1…${U.levels}:  выплата_ℓ = BV × ${U.rate}% × стоимость_BV,  если получатель активен
+<span class="c">неактивный → ${U.compression?'компрессия: пропускаем, уровень не засчитан':'доля сгорает, уровень засчитан'}</span>
+<span class="c">с чего платится: регистрация (пакет) ${U.onPackage?'✓':'✗'} · апгрейды ${U.onUpgrade?'✓':'✗'} · активации ${U.onActivation?'✓':'✗'}</span>`,
+     `ЛП купил ${s.code}: <b>${n(ulStart)} ₸</b> каждому уровню, до <b>${n(ulStart*U.levels)} ₸</b> на все ${U.levels}. Апгрейд ${s.code}→${top.code}: <b>${n(ulUp)} ₸</b> каждому уровню.`],
+    ['Matching — бонус на бонус',
+     'Считается при закрытии месяца. База — то, что лично приглашённые заработали за месяц. От Matching, рангов и пула Matching не платится.',
+     `база_ЛП = ${[M.onDirect&&'Direct', M.onUnilevel&&'Unilevel'].filter(Boolean).join(' + ')||'0'} ЛП за месяц
+Matching = база_ЛП × ставка   <span class="c">ставка по моему пакету: ${M.byPackage.map((x,i)=>pk[i].code+' '+x+'%').join(', ')}</span>
+<span class="c">${M.minWithInvitee?'ставка = min(по моему пакету, по пакету ЛП)':'пакет ЛП на ставку не влияет'}</span>
+<span class="c">поколений вверх: ${M.depth}; получатель неактивен → ${M.requiresActive?'сгорает':'платится'}</span>`,
+     `ЛП заработал 100 000 ₸ → мне ${M.byPackage.map((x,i)=>`при ${pk[i].code} <b>${n(100000*x/100)} ₸</b>`).join(', ')}.`],
+    ['Ранги и премии',
+     `Ранг навсегда. ${P.rank.onActivationOnly?'Ранг пересчитывается только в момент своей активации — выросли ЛП, ранг поднимется при следующей активации.':'Ранг проверяется после каждой покупки и после каждого повышения у ЛП.'} Премия — один раз за каждый достигнутый ранг с премией.`,
+     `Консультант:  #{ЛП: покупки ≥ ${P.rank.qualifyMult} × цена_пакета_ЛП} ≥ ${P.rank.legs}   <span class="c">пакет ${P.rank.packageCounts?'в зачёте':'не в зачёте'}</span>
+Ранг N ≥ 2:   #{ЛП: ранг ≥ N−1} ≥ ${P.rank.legs}
+<span class="c">минимум Консультантов в структуре для ранга N ≈ ${P.rank.legs}^(N−1)</span>
+<span class="c">${P.rank.requiresActive?'повышение только в активный месяц':'повышение в любой месяц'}</span>`,
+     `Когда ЛП закрывает порог Консультанта: ${qMonths}. Премии платятся с ранга «${(P.rank.ranks.find(x=>x.bonus>0)||{name:'—'}).name}».`],
+    ['Leadership Pool',
+     'Фонд — процент от оборота всей компании за месяц. Делится между участниками пропорционально баллам их рангов.',
+     `фонд = ${P.pool.base==='bv'?'BV_месяца × стоимость_BV':'оборот_месяца'} × ${P.pool.pct}%
+стоимость_балла = фонд / Σ баллов участников
+выплата = баллы_ранга × стоимость_балла
+<span class="c">участники: ранг ≥ ${P.pool.minRank}${P.pool.requiresActive?', активны в месяце':''}; нет участников → фонд остаётся компании</span>`,
+     `Последний месяц прогона: фонд <b>${money(fund)}</b>, участников с баллами: ${lastM.poolPoints? n(lastM.poolPoints)+' баллов, 1 балл = <b>'+money(lastM.poolPointValue)+'</b>' : '<b>нет</b>'}.`],
+    ['Потолок выплат',
+     'Страховка на пиковые месяцы. Срезает все выплаты месяца в одной пропорции.',
+     `если Σ выплат_месяца > ${P.cap.pct}% × оборот_месяца:
+    k = ${P.cap.pct}% × оборот / Σ выплат,   каждая выплата × k
+<span class="c">сейчас: ${P.cap.enabled?'включён':'выключен'}</span>`, ''],
+    ['Экономика компании',
+     'Сколько остаётся после налога, себестоимости, платёжки, логистики и всех выплат партнёрам.',
+     `выручка_без_НДС = оборот / (1 + ${E.vatPct}%)
+маржа = выручка_без_НДС × (1 − ${E.cogsPct}% − ${E.logisticsPct}%) − оборот × ${E.acquiringPct}% − Σ выплат
+выплаты, % = Σ выплат / оборот_с_НДС`,
+     `Максимум с покупки = Direct_max + Unilevel + Matching(Direct+Unilevel) + Pool. Для ${s.code}: <b>${pct(MLMSim.perPurchase(P, s.price, s.bv).total)}</b>.`],
+    ['Метрики распределения',
+     'Показывают, кому достаются деньги плана.',
+     `доход > затрат:   Σ бонусов партнёра > пакет + апгрейды + активации
+без дохода:       Σ бонусов = 0
+топ-1%:           доля выплат, ушедшая 1% самых зарабатывающих
+сгорело:          выплаты, не отданные из-за неактивности получателя`, ''],
+    ['Модель роста',
+     'Как симуляция порождает сеть. Это допущения, а не правила плана.',
+     `каждый месяц, по порядку:
+ 1. активация:   активен с вероятностью p (строитель / обычный); ${cfg.growth.churnAfter} пропуска подряд → выбыл
+ 2. апгрейд:     активный не на ${top.code} с вероятностью ${pct(cfg.growth.upgradeProb*100,0)}
+ 3. рекрутинг:   новых ЛП ~ Poisson(λ),  λ = λ_тип × затухание^стаж × (1 − N / ёмкость)
+ 4. событийные бонусы: Direct, Unilevel, квалификация, ранги
+ 5. закрытие:    Matching, Pool, потолок`, ''],
+  ];
+  document.getElementById('panelFx').innerHTML = blocks.map(([h,p,f,eg])=>
+    `<article><h3>${h}</h3><p>${p}</p><pre>${f}</pre>${eg?`<div class="eg">Пример по текущим значениям: ${eg}</div>`:''}</article>`).join('');
+}
+
+function findings(r, peak){
+  const T=r.totals, TO=T.turnover||1, out=[];
+  const top = Math.max(...r.byRank.map((b,i)=>b.n?i:0));
+  const rk = cfg.plan.rank.ranks;
+  out.push(`Выплаты партнёрам за период — ${pct(r.payoutPct)} оборота, пик за месяц — ${pct(peak)}. Больше всего уходит на ${TYPE_LABEL[S.TYPES.reduce((a,k)=>T.byType[k]>T.byType[a]?k:a,'direct')]}.`);
+  const pmax = S.perPurchase(cfg.plan, cfg.plan.packages[0].price, cfg.plan.packages[0].bv).total;
+  out.push(`Теоретический максимум с покупки START — ${pct(pmax)} (без рангов). Реально выходит меньше: не у всех 10 уровней вверх и не все активны. Чем старше сеть, тем ближе к максимуму.`);
+  if (top < cfg.plan.pool.minRank) out.push(`Никто не дошёл до ранга «${rk[cfg.plan.pool.minRank-1].name}»: Leadership Pool не выплачивался. Лучший ранг — ${top?rk[top-1].name:'нет'}. Условие «${cfg.plan.rank.legs} лично приглашённых ранга N−1» требует примерно 2^N консультантов в структуре.`);
+  const firstPaid = rk.findIndex(x=>x.bonus>0);
+  if (T.byType.rank===0 && firstPaid>=0) out.push(`Премии за ранги не выплачивались: первая премия — с ранга «${rk[firstPaid].name}» (${money(rk[firstPaid].bonus)}), а до него никто не дошёл.`);
+  if (T.byType.pool===0 && cfg.plan.pool.pct>0) out.push(`Фонд пула (${cfg.plan.pool.pct}% оборота) без получателей остаётся компании. Решите, копится ли он на следующий месяц.`);
+  out.push(`Только ${pct(r.dist.profitableShare*100)} партнёров заработали больше, чем потратили на пакет, апгрейды и активации. ${pct(r.dist.zeroShare*100,0)} не получили ничего. Топ-1% получает ${pct(r.dist.top1Share*100,0)} всех выплат.`);
+  if (T.breakage/TO>0.01) out.push(`${pct(T.breakage/TO*100)} оборота не выплачено из-за неактивности получателей. Эти деньги остаются компании. Если включить компрессию, часть уйдёт вверх по цепочке.`);
+  document.getElementById('findings').innerHTML = out.map(s=>`<li>${s}</li>`).join('');
+}
+
+// ---------- charts ----------
+const NS='http://www.w3.org/2000/svg';
+function svgEl(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function niceMax(v){ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
+
+function tipAt(box, html, x, y){
+  let t = box.querySelector('.tip'); if(!t){ t=document.createElement('div'); t.className='tip'; box.appendChild(t); }
+  t.innerHTML = html; t.hidden=false;
+  const bw = box.clientWidth, tw = t.offsetWidth;
+  t.style.left = Math.min(Math.max(0,x+14), bw-tw)+'px'; t.style.top = Math.max(0,y-10)+'px';
+}
+function tipHide(box){ const t=box.querySelector('.tip'); if(t) t.hidden=true; }
+
+function stackChart(r){
+  const box = document.getElementById('ch1'); box.innerHTML='';
+  const W=760,H=260,L=40,Rm=10,Tm=10,B=24, iw=W-L-Rm, ih=H-Tm-B;
+  const ms = r.months;
+  const vals = ms.map(m=>S.TYPES.map(k=>m.turnover? m.byType[k]/m.turnover*100 : 0));
+  const maxV = niceMax(Math.max(target, ...vals.map(v=>v.reduce((a,b)=>a+b,0)))*1.05);
+  const y = v => Tm + ih - v/maxV*ih;
+  const svg = svgEl('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Выплаты по видам бонусов, % от оборота по месяцам'});
+  const ticks = 5;
+  for(let i=0;i<=ticks;i++){ const v=maxV/ticks*i; svg.appendChild(svgEl('line',{x1:L,x2:W-Rm,y1:y(v),y2:y(v),stroke:'var(--grid)','stroke-width':1}));
+    const tx=svgEl('text',{x:L-6,y:y(v)+3,'text-anchor':'end'}); tx.textContent=Math.round(v)+'%'; svg.appendChild(tx); }
+  const bw = iw/ms.length, bar = Math.max(2, bw-2);
+  ms.forEach((m,i)=>{
+    let acc=0; const x=L+i*bw+(bw-bar)/2;
+    const g=svgEl('g',{});
+    S.TYPES.forEach((k,j)=>{ const v=vals[i][j]; if(v<=0) return;
+      const y0=y(acc), y1=y(acc+v); acc+=v;
+      g.appendChild(svgEl('rect',{x, y:y1, width:bar, height:Math.max(0,y0-y1-(acc<vals[i].reduce((a,b)=>a+b,0)?0:0)), fill:TYPE_COLOR[k], stroke:'var(--panel)','stroke-width':1}));
+    });
+    svg.appendChild(g);
+    if (ms.length<=36 ? (i%6===5) : (i%12===11)){ const tx=svgEl('text',{x:L+i*bw+bw/2,y:H-8,'text-anchor':'middle'}); tx.textContent='м'+m.month; svg.appendChild(tx); }
+  });
+  svg.appendChild(svgEl('line',{x1:L,x2:W-Rm,y1:y(target),y2:y(target),stroke:'var(--ink-2)','stroke-width':1.5,'stroke-dasharray':'5 4'}));
+  svg.appendChild(svgEl('line',{x1:L,x2:W-Rm,y1:y(0),y2:y(0),stroke:'var(--line-strong)','stroke-width':1}));
+  const hl = svgEl('rect',{x:0,y:Tm,width:bw,height:ih,fill:'var(--ink)',opacity:0,'pointer-events':'none'}); svg.appendChild(hl);
+  const hit = svgEl('rect',{x:L,y:Tm,width:iw,height:ih,fill:'transparent'}); svg.appendChild(hit);
+  box.appendChild(svg);
+  const onMove = ev => {
+    const rc = svg.getBoundingClientRect(); const sx = (ev.clientX-rc.left)/rc.width*W;
+    const i = Math.min(ms.length-1, Math.max(0, Math.floor((sx-L)/bw)));
+    const m = ms[i]; hl.setAttribute('x', L+i*bw); hl.setAttribute('opacity',.06);
+    const tot = vals[i].reduce((a,b)=>a+b,0);
+    tipAt(box, `<b>Месяц ${m.month}</b>` + S.TYPES.map((k,j)=>`<div class="r"><span><i style="background:${TYPE_COLOR[k]}"></i>${TYPE_LABEL[k]}</span><span>${pct(vals[i][j])}</span></div>`).join('') +
+      `<div class="r"><span>Итого</span><span><b style="display:inline">${pct(tot)}</b></span></div><div class="r"><span>Оборот</span><span>${money(m.turnover)}</span></div><div class="r"><span>Активных</span><span>${fmt.format(m.active)}</span></div>`,
+      (ev.clientX-box.getBoundingClientRect().left), (ev.clientY-box.getBoundingClientRect().top));
+  };
+  hit.addEventListener('pointermove', onMove);
+  hit.addEventListener('pointerleave', ()=>{ hl.setAttribute('opacity',0); tipHide(box); });
+}
+
+function lineChart(r){
+  const box = document.getElementById('ch2'); box.innerHTML='';
+  const W=520,H=240,L=48,Rm=12,Tm=10,B=24, iw=W-L-Rm, ih=H-Tm-B;
+  const ms=r.months, maxV=niceMax(Math.max(...ms.map(m=>m.members))*1.05);
+  const x = i => L + (ms.length<=1?0:i/(ms.length-1)*iw), y = v => Tm+ih-v/maxV*ih;
+  const svg = svgEl('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Всего и активных партнёров по месяцам'});
+  for(let i=0;i<=4;i++){ const v=maxV/4*i; svg.appendChild(svgEl('line',{x1:L,x2:W-Rm,y1:y(v),y2:y(v),stroke:'var(--grid)'}));
+    const t=svgEl('text',{x:L-6,y:y(v)+3,'text-anchor':'end'}); t.textContent=v>=1000?fmt.format(v/1000)+'k':fmt.format(v); svg.appendChild(t); }
+  ms.forEach((m,i)=>{ if(ms.length<=36 ? (i%6===5) : (i%12===11)){ const t=svgEl('text',{x:x(i),y:H-8,'text-anchor':'middle'}); t.textContent='м'+m.month; svg.appendChild(t);} });
+  const path = key => ms.map((m,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(m[key]).toFixed(1)).join('');
+  svg.appendChild(svgEl('path',{d:path('members')+`L${x(ms.length-1)},${y(0)}L${x(0)},${y(0)}Z`,fill:'var(--s1)',opacity:.08}));
+  svg.appendChild(svgEl('path',{d:path('members'),fill:'none',stroke:'var(--s1)','stroke-width':2}));
+  svg.appendChild(svgEl('path',{d:path('active'),fill:'none',stroke:'var(--s3)','stroke-width':2}));
+  const lastM = ms[ms.length-1];
+  [['members','var(--s1)'],['active','var(--s3)']].forEach(([k,c])=>svg.appendChild(svgEl('circle',{cx:x(ms.length-1),cy:y(lastM[k]),r:4,fill:c,stroke:'var(--panel)','stroke-width':2})));
+  const cross = svgEl('line',{x1:0,x2:0,y1:Tm,y2:Tm+ih,stroke:'var(--ink-3)','stroke-width':1,opacity:0}); svg.appendChild(cross);
+  const hit = svgEl('rect',{x:L,y:Tm,width:iw,height:ih,fill:'transparent'}); svg.appendChild(hit);
+  box.appendChild(svg);
+  hit.addEventListener('pointermove', ev=>{
+    const rc=svg.getBoundingClientRect(); const sx=(ev.clientX-rc.left)/rc.width*W;
+    const i=Math.min(ms.length-1,Math.max(0,Math.round((sx-L)/iw*(ms.length-1)))); const m=ms[i];
+    cross.setAttribute('x1',x(i)); cross.setAttribute('x2',x(i)); cross.setAttribute('opacity',.6);
+    const br=box.getBoundingClientRect();
+    tipAt(box, `<b>Месяц ${m.month}</b><div class="r"><span><i style="background:var(--s1)"></i>Всего</span><span>${fmt.format(m.members)}</span></div><div class="r"><span><i style="background:var(--s3)"></i>Активных</span><span>${fmt.format(m.active)}</span></div><div class="r"><span>Новых</span><span>${fmt.format(m.joined)}</span></div>`, ev.clientX-br.left, ev.clientY-br.top);
+  });
+  hit.addEventListener('pointerleave', ()=>{ cross.setAttribute('opacity',0); tipHide(box); });
+}
+
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
+  const plan = clone(cfg.plan), econ = clone(cfg.econ);
+  cfg = clone(S.DEFAULTS); cfg.plan = plan; cfg.econ = econ;
+  const p = PRESETS[b.dataset.preset];
+  for (const sec in p) Object.assign(cfg[sec], p[sec]);
+  document.querySelectorAll('[data-preset]').forEach(x=>x.setAttribute('aria-pressed', x===b?'true':'false'));
+  buildForm(); schedule();
+}));
+document.getElementById('runBtn').addEventListener('click', compute);
+const descBox = document.getElementById('showDesc');
+descBox.checked = showDesc;
+descBox.addEventListener('change', () => {
+  showDesc = descBox.checked;
+  try { localStorage.setItem('showDesc', showDesc?'1':'0'); } catch(e){}
+  document.querySelectorAll('#form .desc').forEach(el => el.hidden = !showDesc);
+});
+const tabs = [['tabFx','panelFx'],['tabGl','panelGl']];
+tabs.forEach(([t]) => document.getElementById(t).addEventListener('click', () => {
+  tabs.forEach(([t2,p2]) => { const on = t2===t; document.getElementById(t2).setAttribute('aria-selected', on); document.getElementById(p2).hidden = !on; });
+}));
+// ---------- экспорт / импорт ----------
+const FORMAT = 'almat-comp-plan-calibration', FORMAT_VERSION = 1;
+const STORE_KEY = 'almat-calibrator-state-v1';
+const LIMITS = { // потолки, чтобы чужой файл не повесил браузер
+  'growth.months': [1, 120], 'growth.seedLeaders': [1, 2000], 'growth.marketCap': [100, 500000],
+  'growth.lambdaBuilder': [0, 10], 'growth.lambdaRegular': [0, 10], 'growth.lambdaDecay': [0, 1],
+  'growth.builderShare': [0, 1], 'growth.activeBuilder': [0, 1], 'growth.activeRegular': [0, 1],
+  'growth.upgradeProb': [0, 1], 'growth.jumpShare': [0, 1], 'growth.churnAfter': [1, 120],
+  'plan.unilevel.levels': [0, 50], 'plan.matching.depth': [0, 20], 'plan.rank.legs': [1, 50],
+  'plan.pool.minRank': [1, 11], 'plan.bvValue': [0.01, 1e6],
+};
+const ENUMS = { 'plan.pool.base': ['turnover', 'bv'] };
+const FIXED_STRINGS = /(^|\.)(code|name)$/; // названия пакетов и рангов не берём из файла
+let meta = { name: '', note: '' };
+let lastRun = null;
+const vName = document.getElementById('vName'), vNote = document.getElementById('vNote'), vMsg = document.getElementById('vMsg');
+vName.addEventListener('input', () => { meta.name = vName.value; persist(); refreshJson(); });
+vNote.addEventListener('input', () => { meta.note = vNote.value; persist(); refreshJson(); });
+
+function exportObject(){
+  const o = {
+    format: FORMAT, version: FORMAT_VERSION, exportedAt: new Date().toISOString(),
+    name: meta.name, note: meta.note,
+    plan: cfg.plan, econ: cfg.econ, growth: cfg.growth,
+    ui: { targetPayoutPct: target },
+  };
+  if (lastRun) {
+    const { r, peak } = lastRun, T = r.totals;
+    o.summary = {
+      _comment: 'Результат прогона на момент экспорта. При импорте игнорируется.',
+      payoutPct: +r.payoutPct.toFixed(2), peakMonthPct: +peak.toFixed(2), marginPct: +r.econ.marginPct.toFixed(2),
+      turnoverKzt: Math.round(T.turnover), members: r.members, profitableShare: +(r.dist.profitableShare*100).toFixed(2),
+    };
+  }
+  return o;
+}
+function refreshJson(){ const out = document.getElementById('cfgOut'); if (document.activeElement !== out) out.value = JSON.stringify(exportObject(), null, 2); }
+
+function merge(def, inc, path, rep){
+  if (inc === undefined) { rep.missing.push(path); return clone(def); }
+  if (Array.isArray(def)) {
+    if (!Array.isArray(inc) || inc.length !== def.length) { rep.bad.push(`${path}: нужен массив из ${def.length} элементов`); return clone(def); }
+    return def.map((d,i) => merge(d, inc[i], `${path}.${i}`, rep));
+  }
+  if (def && typeof def === 'object') {
+    if (!inc || typeof inc !== 'object' || Array.isArray(inc)) { rep.bad.push(`${path}: нужен объект`); return clone(def); }
+    const out = {};
+    for (const k of Object.keys(def)) out[k] = merge(def[k], inc[k], path ? `${path}.${k}` : k, rep);
+    for (const k of Object.keys(inc)) if (!(k in def) && !k.startsWith('_')) rep.unknown.push(path ? `${path}.${k}` : k);
+    return out;
+  }
+  if (typeof def === 'number') {
+    if (typeof inc !== 'number' || !isFinite(inc) || inc < 0) { rep.bad.push(`${path}: нужно неотрицательное число`); return def; }
+    const lim = LIMITS[path];
+    if (lim && (inc < lim[0] || inc > lim[1])) { const v = Math.min(lim[1], Math.max(lim[0], inc)); rep.clamped.push(`${path}: ${inc} → ${v}`); return v; }
+    return inc;
+  }
+  if (typeof def === 'boolean') {
+    if (typeof inc !== 'boolean') { rep.bad.push(`${path}: нужно true или false`); return def; }
+    return inc;
+  }
+  if (typeof def === 'string') {
+    if (FIXED_STRINGS.test(path)) return def;
+    if (ENUMS[path] && ENUMS[path].includes(inc)) return inc;
+    rep.bad.push(`${path}: допустимо ${ENUMS[path] ? ENUMS[path].join(' / ') : 'строка'}`); return def;
+  }
+  return clone(def);
+}
+
+function importData(obj, source){
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('В файле не JSON-объект.');
+  let src = obj;
+  const barePlan = !obj.plan && obj.direct && obj.unilevel; // вставили только config_json
+  if (barePlan) src = { plan: obj };
+  else if (obj.format && obj.format !== FORMAT) throw new Error(`Это не файл калибровщика (format: ${String(obj.format).slice(0,40)}).`);
+  if (!src.plan) throw new Error('В файле нет блока plan — это не конфиг калибровщика.');
+  if (obj.version && obj.version > FORMAT_VERSION) throw new Error(`Файл из более новой версии калибровщика (v${obj.version}). Обновите страницу.`);
+  const rep = { missing: [], bad: [], unknown: [], clamped: [] };
+  const next = {
+    plan: merge(S.DEFAULTS.plan, src.plan, 'plan', rep),
+    econ: merge(S.DEFAULTS.econ, src.econ ?? clone(S.DEFAULTS.econ), 'econ', rep),
+    growth: merge(S.DEFAULTS.growth, src.growth ?? clone(S.DEFAULTS.growth), 'growth', rep),
+  };
+  cfg = next;
+  const t = src.ui && typeof src.ui.targetPayoutPct === 'number' && isFinite(src.ui.targetPayoutPct) ? src.ui.targetPayoutPct : target;
+  target = Math.min(100, Math.max(0, t));
+  meta = { name: typeof obj.name === 'string' ? obj.name.slice(0,80) : '', note: typeof obj.note === 'string' ? obj.note.slice(0,500) : '' };
+  vName.value = meta.name; vNote.value = meta.note;
+  clearPreset(); buildForm(); compute();
+  const lines = [];
+  if (rep.bad.length) lines.push(`Не приняты (оставлены исходные значения): ${rep.bad.join('; ')}`);
+  if (rep.clamped.length) lines.push(`Ограничены до допустимых: ${rep.clamped.join('; ')}`);
+  if (rep.missing.length) lines.push(`Не было в файле, взяты исходные: ${rep.missing.length > 6 ? rep.missing.slice(0,6).join(', ') + ` и ещё ${rep.missing.length-6}` : rep.missing.join(', ')}`);
+  if (rep.unknown.length) lines.push(`Неизвестные поля пропущены: ${rep.unknown.slice(0,6).join(', ')}${rep.unknown.length>6?'…':''}`);
+  const title = `Загружено${meta.name ? ` «${meta.name}»` : ''} ${source}${barePlan ? ' (только план, рост и экономика — исходные)' : ''}.`;
+  say(lines.length ? 'warn' : 'ok', title, lines);
+}
+
+function say(kind, text, lines){
+  vMsg.className = 'v-msg ' + (kind || '');
+  vMsg.textContent = text;
+  if (lines && lines.length) { const ul = document.createElement('ul'); lines.forEach(l => { const li = document.createElement('li'); li.textContent = l; ul.appendChild(li); }); vMsg.appendChild(ul); }
+}
+
+function persist(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ format: FORMAT, version: FORMAT_VERSION, name: meta.name, note: meta.note, plan: cfg.plan, econ: cfg.econ, growth: cfg.growth, ui: { targetPayoutPct: target } })); } catch(e){}
+}
+
+document.getElementById('btnExport').addEventListener('click', async () => {
+  const text = JSON.stringify(exportObject(), null, 2);
+  const slug = (meta.name || 'plan').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'plan';
+  const filename = `almat-${slug}-${new Date().toISOString().slice(0,10)}.json`;
+  const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (!dl) { fallbackCopy(text, 'Скачивание недоступно в этом окне. JSON — в поле «Конфиг в JSON» внизу страницы'); return; }
+  try { await dl.save({ filename, data: text }); say('ok', `Файл ${filename} сохранён. Отправьте его — получатель откроет калибровщик и нажмёт «Импорт из файла».`); }
+  catch (e) {
+    if (e && e.code === 'declined') say('', 'Сохранение отменено.');
+    else if (e && e.code === 'rate_limited') say('warn', 'Окно сохранения уже открыто — подтвердите или закройте его.');
+    else fallbackCopy(text, 'Не удалось сохранить файл. JSON — в поле «Конфиг в JSON» внизу страницы');
+  }
+});
+async function fallbackCopy(text, why){
+  const out = document.getElementById('cfgOut'); out.value = text;
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; } catch(e){}
+  say('warn', why + (copied ? ', и уже скопирован в буфер обмена.' : '. Скопируйте его вручную.'));
+}
+const fileInput = document.getElementById('fileImport');
+document.getElementById('btnImport').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  const f = fileInput.files && fileInput.files[0]; fileInput.value = '';
+  if (!f) return;
+  if (f.size > 1024*1024) { say('bad', 'Файл больше 1 МБ — это не конфиг калибровщика.'); return; }
+  const rd = new FileReader();
+  rd.onload = () => { try { importData(JSON.parse(rd.result), `из файла ${f.name}`); } catch(e){ say('bad', 'Не удалось загрузить: ' + (e instanceof SyntaxError ? 'файл не является корректным JSON.' : e.message)); } };
+  rd.onerror = () => say('bad', 'Не удалось прочитать файл.');
+  rd.readAsText(f);
+});
+document.getElementById('btnApplyText').addEventListener('click', () => {
+  const txt = document.getElementById('cfgOut').value.trim();
+  if (!txt) { say('bad', 'Поле пустое — вставьте JSON.'); return; }
+  try { importData(JSON.parse(txt), 'из текста'); document.getElementById('cfgOut').blur(); refreshJson(); }
+  catch(e){ say('bad', 'Не удалось применить: ' + (e instanceof SyntaxError ? 'текст не является корректным JSON (' + e.message + ').' : e.message)); }
+  document.querySelector('.variant').scrollIntoView({ block: 'start' });
+});
+document.getElementById('btnCopy').addEventListener('click', async () => {
+  const out = document.getElementById('cfgOut');
+  try { await navigator.clipboard.writeText(out.value); say('ok', 'JSON скопирован в буфер обмена.'); }
+  catch(e){ out.focus(); out.select(); say('warn', 'Буфер обмена недоступен — текст выделен, нажмите Ctrl+C.'); }
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  cfg = clone(S.DEFAULTS); target = 45; meta = { name: '', note: '' };
+  vName.value = ''; vNote.value = '';
+  try { localStorage.removeItem(STORE_KEY); } catch(e){}
+  document.querySelectorAll('[data-preset]').forEach(x=>x.setAttribute('aria-pressed', x.dataset.preset==='base'?'true':'false'));
+  buildForm(); compute(); say('ok', 'Параметры сброшены к исходным.');
+});
+
+// восстановить последнее состояние этого браузера
+(function restore(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch(e){}
+  if (saved) {
+    try { importData(saved, 'из прошлой сессии'); say('', 'Восстановлены параметры из прошлой сессии в этом браузере. «Сбросить к исходным» вернёт значения по умолчанию.'); return; }
+    catch(e){ try { localStorage.removeItem(STORE_KEY); } catch(_){} }
+  }
+  buildForm(); compute();
+})();
+})();
+</script>

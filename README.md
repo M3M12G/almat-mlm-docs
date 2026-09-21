@@ -11,16 +11,19 @@
 1. [`TECH_SPEC.md`](TECH_SPEC.md) — backend / frontend / storage / integrations
 2. [`07_open_questions.md`](07_open_questions.md) — закрыть до bonus engine
 3. [`08_roadmap.md`](08_roadmap.md) — этапы
-4. [`09_mvp_deployment.md`](09_mvp_deployment.md) — бесплатный MVP-деплой
-5. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + Quartz.NET
-6. [`adr/0005-…`](adr/0005-ef-code-first-and-json.md) — code-first EF, два контекста, STJ
+4. [`10_comp_plan_calibration.md`](10_comp_plan_calibration.md) — калибровка ставок/BV + калибровщик `calibration/`
+5. [`09_mvp_deployment.md`](09_mvp_deployment.md) — бесплатный MVP-деплой
+6. [`adr/0004-…`](adr/0004-oss-long-lived-dependencies.md) — OSS-политика + Quartz.NET
+7. [`adr/0005-…`](adr/0005-ef-code-first-and-json.md) — code-first EF, два контекста, STJ
+8. [`adr/0006-…`](adr/0006-bv-as-bonus-base.md) — BV как база процентных бонусов
 
 ## Layout
 
 ```
 almat-mlm-docs/          ← корень репо (= docs/ в api/web после submodule)
 ├── TECH_SPEC.md
-├── 00_…09_*.md
+├── 00_…10_*.md
+├── calibration/         # HTML-калибровщик comp plan (открывается без сервера)
 ├── adr/
 ├── agents/              # Matt Pocock skills config
 ├── db/                  # README + queries_recursive.sql (схема = EF, ADR-0005)

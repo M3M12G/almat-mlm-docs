@@ -73,21 +73,22 @@ LeadershipPool (Quartz job) · Withdrawals · Accounting (минимум) · Adm
 
 ### 3.3 Bonus Engine (контракт поведения)
 ```
-Purchase paid (idempotent)
-  → DirectBonusRule
-  → UnilevelBonusRule (active partners only, ≤10 levels up)
-  → MatchingBonusRule (from paid bonus, depth TBD — open Q)
-  → RankEngine → RankBonus
+Purchase paid (idempotent; kind = package | upgrade | activation | product; amount_kzt + BV)
+  → DirectBonusRule (package | upgrade only; rate by sponsor's current package)
+  → UnilevelBonusRule (package | upgrade only; active partners, 10 levels above sponsor; by BV)
+  → Qualification update (all invitee purchases incl. package → Consultant)
+  → RankEngine → RankBonus (only on the partner's own activation)
   → incremental ancestor volume update
 
-Quartz monthly cron:
-  → LeadershipPoolJob (2% world TO → Gold Director+)
+Quartz monthly cron (month close):
+  → MatchingBonusRule (from invitees' Direct + Unilevel of the month; rate by own package)
+  → LeadershipPoolJob (2% world TO → Gold Director+, active only)
 ```
 
 - Правила в `bonus_rules.config_json` — **данные, не код** (ADR-0003).
 - Баланс = агрегат ledger, не mutable field.
-- Порядок Direct vs Unilevel и глубина Matching — закрыть в `07_open_questions.md`
-  до реализации.
+- Ранг не теряется; возвратов нет → сторно по цепочке не реализуем (`03_bonus_engine.md`, R7–R8).
+- Процентные бонусы — от BV (ADR-0006). Оставшиеся вопросы — `07_open_questions.md`.
 
 ### 3.4 API (сводка)
 Черновик: `api-contracts/endpoints.md`.  
@@ -140,7 +141,7 @@ JSON: **System.Text.Json** (BCL). Newtonsoft.Json не ставить.
 | Таблица | Роль |
 |---|---|
 | `users` | узел сети + агрегаты активности/объёма |
-| `packages` | START / BUSINESS / PREMIUM (+ LP) |
+| `packages` | START / BUSINESS / PREMIUM + активация (цена, BV) |
 | `purchases` | заказы; unique `payment_provider_tx_id` |
 | `bonus_rules` | конфиг правил (JSONB) |
 | `bonus_transactions` | append-only ledger начислений |
@@ -258,7 +259,8 @@ almat-mlm-docs/             ← канон docs (submodule в api/web)
 | `00_overview.md` | скоуп пилота, принципы (comp plan = data, ledger) |
 | `01_stack.md` | стек + политика зависимостей |
 | `02_network_model.md` | adjacency list, циклы, агрегаты |
-| `03_bonus_engine.md` | 5 правил, пакеты, config_json |
+| `03_bonus_engine.md` | 5 правил, R1–R8, BV, config_json |
+| `10_comp_plan_calibration.md` | модель калибровки, результаты, как калибровать |
 | `04_payments.md` | FreedomPay pay-in + ISO settlement, идемпотентность |
 | `05_accounting.md` | минимальные проводки |
 | `06_security.md` | чеклист ИБ |
@@ -272,4 +274,5 @@ almat-mlm-docs/             ← канон docs (submodule в api/web)
 | `docs/adr/0003-…` | Rules as config_json |
 | `docs/adr/0004-…` | OSS / long-lived deps (+ Quartz.NET) |
 | `docs/adr/0005-…` | EF code-first, QuartzDbContext, System.Text.Json |
+| `docs/adr/0006-…` | BV как база процентных бонусов |
 | `09_mvp_deployment.md` | бесплатный MVP-деплой (до домена; FreedomPay позже) |
